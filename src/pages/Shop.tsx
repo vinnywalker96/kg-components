@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { useProductStore } from "@/store/productStore";
 import { useCartStore } from "@/store/cartStore";
 import { ProductWithCategory } from "@/types";
-import { Search, ShoppingCart } from "lucide-react";
+import { Download, Search, ShoppingCart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 
 const Shop = () => {
-  const { products, categories, isLoading, fetchProducts, fetchCategories, searchProducts } = useProductStore();
+  const { products, categories, isLoading, fetchProducts, fetchCategories, searchProducts, importDemoProducts } = useProductStore();
   const { addToCart } = useCartStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,6 +82,22 @@ const Shop = () => {
                 </button>
               ))}
             </div>
+
+            {products.length === 0 && (
+              <div className="mt-6 p-4 bg-gray-50 rounded-md">
+                <h3 className="font-medium text-sm mb-2">No products found</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() => importDemoProducts()}
+                  disabled={isLoading}
+                >
+                  <Download className="h-4 w-4" />
+                  {isLoading ? "Importing..." : "Import Demo Products"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
