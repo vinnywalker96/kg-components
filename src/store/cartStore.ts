@@ -6,7 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuthStore } from "./authStore";
 
 interface CartState {
-  items: (CartItem & { product: Product })[];
+  items: (CartItem & { product: Product & { category: { name: string; id: string } | null } })[];
   isLoading: boolean;
   total: number;
   fetchCart: () => Promise<void>;
@@ -35,7 +35,12 @@ export const useCartStore = create<CartState>((set, get) => ({
         .from("cart_items")
         .select(`
           *,
-          product:products(*)
+          product:products(
+            *,
+            category:categories(
+              id, name
+            )
+          )
         `)
         .eq("user_id", user.id);
 
