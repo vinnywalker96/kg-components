@@ -9,7 +9,7 @@ export type OrderItem = Tables<"order_items">;
 export type CartItem = Tables<"cart_items">;
 
 export type ProductWithCategory = Product & {
-  category: Category;
+  category: Category | null;
 };
 
 export type OrderWithItems = Order & {

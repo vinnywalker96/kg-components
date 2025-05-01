@@ -79,8 +79,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       set({ isLoading: false, initialized: true });
-      return () => authListener.subscription.unsubscribe();
       
+      // Fix: Don't return the unsubscribe function directly
+      const unsubscribe = () => authListener.subscription.unsubscribe();
+      return;
     } catch (error) {
       console.error("Error initializing auth:", error);
       set({ isLoading: false, initialized: true });

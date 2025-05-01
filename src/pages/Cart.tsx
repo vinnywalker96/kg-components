@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -129,7 +128,7 @@ const Cart = () => {
                       </Link>
                       
                       <div className="text-sm text-gray-500 mb-4">
-                        {item.product.category?.name}
+                        {item.product.category?.name || "Uncategorized"}
                       </div>
 
                       <div className="flex items-center">
