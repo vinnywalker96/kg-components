@@ -82,7 +82,12 @@ export const useCartStore = create<CartState>((set, get) => ({
           .eq("id", existingItem.id)
           .select(`
             *,
-            product:products(*)
+            product:products(
+              *,
+              category:categories(
+                id, name
+              )
+            )
           `)
           .single();
 
@@ -112,7 +117,12 @@ export const useCartStore = create<CartState>((set, get) => ({
           })
           .select(`
             *,
-            product:products(*)
+            product:products(
+              *,
+              category:categories(
+                id, name
+              )
+            )
           `)
           .single();
 
@@ -159,7 +169,12 @@ export const useCartStore = create<CartState>((set, get) => ({
         .eq("id", id)
         .select(`
           *,
-          product:products(*)
+          product:products(
+            *,
+            category:categories(
+              id, name
+            )
+          )
         `)
         .single();
 
