@@ -1,10 +1,12 @@
 
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useProductStore } from "@/store/productStore";
-import { useEffect } from "react";
 import { ArrowRight, ShoppingBag, TrendingUp, Award, Box, RefreshCcw } from "lucide-react";
+import { useProductStore } from "@/store/productStore";
+import HeroSlideshow from "@/components/home/HeroSlideshow";
+import FeaturedProductsSlideshow from "@/components/home/FeaturedProductsSlideshow";
+import CategoriesSlideshow from "@/components/home/CategoriesSlideshow";
 
 const Index = () => {
   const { products, fetchProducts, fetchCategories, categories } = useProductStore();
@@ -16,40 +18,35 @@ const Index = () => {
 
   const featuredProducts = products.slice(0, 8);
 
+  // Hero slideshow data
+  const heroSlides = [
+    {
+      imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+      title: "Quality Electronic Components for Every Project",
+      description: "Professional tools and components for engineers, hobbyists, and businesses",
+      buttonText: "Shop Now",
+      buttonLink: "/shop"
+    },
+    {
+      imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
+      title: "Test & Measurement Equipment",
+      description: "Precision instruments for accurate readings and reliable results",
+      buttonText: "Explore",
+      buttonLink: "/shop?category=Test%20and%20Measurements"
+    },
+    {
+      imageUrl: "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
+      title: "Professional Tools for Every Task",
+      description: "High-quality equipment from trusted brands",
+      buttonText: "View Tools",
+      buttonLink: "/shop?category=Tools"
+    }
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative">
-        <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
-          <div className="container mx-auto px-4 py-20 md:py-28">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Quality Electronic Components for Every Project
-              </h1>
-              <p className="text-xl mb-8 text-blue-100">
-                Professional tools and components for engineers, hobbyists, and businesses
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/shop">
-                  <Button size="lg" className="bg-white text-blue-800 hover:bg-blue-50 px-8 py-6 text-base font-semibold">
-                    Shop Now <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link to="/contact">
-                  <Button size="lg" variant="outline" className="bg-transparent border-2 border-white hover:bg-white/10 px-8 py-6 text-base font-semibold">
-                    Contact Us
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Curved bottom edge */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-white" style={{ 
-          clipPath: "ellipse(75% 100% at 50% 100%)"
-        }}></div>
-      </section>
+      {/* Hero Slideshow Section */}
+      <HeroSlideshow slides={heroSlides} />
 
       {/* Value Props Section */}
       <section className="py-16 bg-white">
@@ -98,104 +95,19 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">Browse Our Categories</h2>
-            <p className="text-gray-600 mt-2">Find exactly what you need for your next project</p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                to={`/shop?category=${category.name}`}
-                className="transform transition-transform hover:scale-105 hover:shadow-lg"
-              >
-                <Card className="overflow-hidden h-full border-none shadow-md">
-                  <div className="h-32 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                    <div className="text-xl font-semibold text-white">
-                      {category.name}
-                    </div>
-                  </div>
-                  <CardContent className="p-4 bg-white">
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {category.description || `Browse our selection of ${category.name.toLowerCase()}`}
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-          
-          <div className="text-center mt-10">
-            <Link to="/shop">
-              <Button variant="outline" className="border-blue-500 text-blue-700 hover:bg-blue-50">
-                View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Categories Slideshow Section */}
+      <CategoriesSlideshow 
+        categories={categories} 
+        title="Browse Our Categories"
+        description="Find exactly what you need for your next project"
+      />
 
-      {/* Featured Products Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">Featured Products</h2>
-            <p className="text-gray-600 mt-2">Top picks from our extensive catalog</p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.id}`}
-                className="transform transition-all duration-300 hover:scale-105 group"
-              >
-                <Card className="overflow-hidden h-full border border-gray-100 shadow-sm group-hover:shadow-md">
-                  <div className="h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
-                    {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="h-full w-full object-contain p-4 group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center">
-                        <Box className="h-12 w-12 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="text-xs text-blue-600 mb-1 uppercase font-semibold">
-                      {product.category?.name || "Component"}
-                    </div>
-                    <h3 className="font-medium mb-2 group-hover:text-blue-700 line-clamp-2 h-12">
-                      {product.name}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <p className="font-bold text-gray-900">${Number(product.price).toFixed(2)}</p>
-                      <Button variant="ghost" size="sm" className="p-0 h-8 w-8 rounded-full bg-blue-50 hover:bg-blue-100">
-                        <ShoppingBag className="h-4 w-4 text-blue-700" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-          
-          <div className="text-center mt-10">
-            <Link to="/shop">
-              <Button className="bg-blue-700 hover:bg-blue-800">
-                View All Products <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Featured Products Slideshow Section */}
+      <FeaturedProductsSlideshow
+        products={featuredProducts}
+        title="Featured Products"
+        description="Top picks from our extensive catalog"
+      />
 
       {/* Testimonials Section */}
       <section className="py-16 bg-gray-50">
@@ -223,8 +135,8 @@ const Index = () => {
                 comment: "Fast shipping and reliable parts. I've been using KG Components for all my prototyping needs for years.",
               }
             ].map((testimonial, index) => (
-              <Card key={index} className="overflow-hidden border-none shadow-md">
-                <CardContent className="p-6">
+              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+                <div className="p-6">
                   <div className="flex flex-col h-full">
                     <div className="mb-4 text-yellow-400 flex">
                       {[...Array(5)].map((_, i) => (
@@ -244,8 +156,8 @@ const Index = () => {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
