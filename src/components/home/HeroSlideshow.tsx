@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
@@ -17,6 +18,15 @@ interface HeroSlideshowProps {
 }
 
 const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   return (
     <div className="w-full relative">
       <Carousel
@@ -25,23 +35,25 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
           duration: 50,
         }}
         className="w-full"
+        value={activeSlide}
+        onValueChange={(value) => setActiveSlide(value)}
       >
         <CarouselContent>
           {slides.map((slide, index) => (
             <CarouselItem key={index}>
-              <div className="relative w-full h-[500px]">
+              <div className="relative w-full h-[600px] overflow-hidden">
                 <img 
                   src={slide.imageUrl}
                   alt={slide.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hero-image transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent flex items-center">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-transparent flex items-center">
                   <div className="container mx-auto px-4">
                     <div className="max-w-2xl text-white">
-                      <h2 className="text-4xl md:text-5xl font-bold mb-4">{slide.title}</h2>
-                      <p className="text-xl mb-8 text-white/90">{slide.description}</p>
-                      <Link to={slide.buttonLink}>
-                        <Button size="lg" className="bg-white text-blue-800 hover:bg-blue-50 px-8 py-6 text-base font-semibold">
+                      <h2 className="text-4xl md:text-5xl font-bold mb-4 hero-title">{slide.title}</h2>
+                      <p className="text-xl mb-8 text-white/90 hero-description">{slide.description}</p>
+                      <Link to={slide.buttonLink} className="hero-button">
+                        <Button size="lg" className="bg-white text-blue-800 hover:bg-blue-50 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all">
                           {slide.buttonText} <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                       </Link>
@@ -52,16 +64,19 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="left-4 z-10" />
+        <CarouselNext className="right-4 z-10" />
       </Carousel>
       
       {/* Slide indicators */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
         {slides.map((_, index) => (
           <div 
             key={index} 
-            className="h-2 w-12 rounded-full bg-white/50 hover:bg-white/80 cursor-pointer transition-colors"
+            onClick={() => setActiveSlide(index)}
+            className={`h-2 w-12 rounded-full cursor-pointer transition-colors duration-300 ${
+              index === activeSlide ? "bg-white" : "bg-white/50 hover:bg-white/80"
+            }`}
           />
         ))}
       </div>
