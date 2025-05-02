@@ -48,7 +48,7 @@ const FeaturedProductsSlideshow = ({ products, title, description }: FeaturedPro
                         )}
                         
                         {/* Tag for special products */}
-                        {product.id % 3 === 0 && (
+                        {product.id && typeof product.id === 'number' && product.id % 3 === 0 && (
                           <div className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
                             BEST SELLER
                           </div>
@@ -77,7 +77,7 @@ const FeaturedProductsSlideshow = ({ products, title, description }: FeaturedPro
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="font-bold text-gray-900">${Number(product.price).toFixed(2)}</p>
-                            {product.id % 2 === 0 && (
+                            {product.id && typeof product.id === 'number' && product.id % 2 === 0 && (
                               <p className="text-xs text-gray-500 line-through">${(Number(product.price) * 1.2).toFixed(2)}</p>
                             )}
                           </div>

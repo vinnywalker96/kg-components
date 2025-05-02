@@ -18,11 +18,11 @@ interface HeroSlideshowProps {
 }
 
 const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(interval);
   }, [slides.length]);
@@ -33,10 +33,10 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
         opts={{
           loop: true,
           duration: 50,
+          startIndex: currentSlide,
         }}
         className="w-full"
-        value={activeSlide}
-        onValueChange={(value) => setActiveSlide(value)}
+        onSelect={(index) => setCurrentSlide(index)}
       >
         <CarouselContent>
           {slides.map((slide, index) => (
@@ -73,9 +73,9 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
         {slides.map((_, index) => (
           <div 
             key={index} 
-            onClick={() => setActiveSlide(index)}
+            onClick={() => setCurrentSlide(index)}
             className={`h-2 w-12 rounded-full cursor-pointer transition-colors duration-300 ${
-              index === activeSlide ? "bg-white" : "bg-white/50 hover:bg-white/80"
+              index === currentSlide ? "bg-white" : "bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
