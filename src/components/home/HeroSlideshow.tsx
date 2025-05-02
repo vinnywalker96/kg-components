@@ -36,7 +36,8 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
           startIndex: currentSlide,
         }}
         className="w-full"
-        onSelect={(index) => setCurrentSlide(index)}
+        // Fix: Change the onSelect handler to correctly handle the number index
+        onSelect={(index: number) => setCurrentSlide(index)}
       >
         <CarouselContent>
           {slides.map((slide, index) => (
