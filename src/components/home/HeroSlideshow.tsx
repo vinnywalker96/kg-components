@@ -36,8 +36,16 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
           startIndex: currentSlide,
         }}
         className="w-full"
-        // Fix: Change the onSelect handler to correctly handle the number index
-        onSelect={(index: number) => setCurrentSlide(index)}
+        // Fix: Use the correct event parameter and extract the index from the API
+        onSelect={(event) => {
+          // The Carousel onSelect provides a React event, not an index
+          // We'll get the current slide from the Carousel API after the event
+          const api = (event.currentTarget as any)._emblaApi;
+          if (api) {
+            const selectedIndex = api.selectedScrollSnap();
+            setCurrentSlide(selectedIndex);
+          }
+        }}
       >
         <CarouselContent>
           {slides.map((slide, index) => (
