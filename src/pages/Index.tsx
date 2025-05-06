@@ -7,6 +7,7 @@ import { useProductStore } from "@/store/productStore";
 import HeroSlideshow from "@/components/home/HeroSlideshow";
 import FeaturedProductsSlideshow from "@/components/home/FeaturedProductsSlideshow";
 import CategoriesSlideshow from "@/components/home/CategoriesSlideshow";
+import HomePageComponent3D from "@/components/three/HomePageComponent3D";
 
 const Index = () => {
   const { products, fetchProducts, fetchCategories, categories } = useProductStore();
@@ -54,6 +55,37 @@ const Index = () => {
           <div className="flex justify-center items-center text-blue-800">
             <span className="led-indicator"></span>
             <p className="font-medium">Free shipping on orders over $100 | <span className="underline cursor-pointer">Learn More</span></p>
+          </div>
+        </div>
+      </section>
+
+      {/* 3D Component Showcase */}
+      <section className="py-16 bg-gradient-to-b from-white to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Explore Our Components in 3D</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Click on any component in the scene to get a closer look and learn more about our product offerings
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <HomePageComponent3D className="shadow-lg border border-gray-200" />
+            </div>
+            <div className="flex flex-col justify-center bg-white p-6 rounded-lg shadow-lg border border-gray-100">
+              <h3 className="text-2xl font-bold mb-4">Premium Electronic Components</h3>
+              <p className="text-gray-600 mb-6">
+                Our catalog features high-quality electronic components sourced from trusted manufacturers. 
+                From resistors and capacitors to integrated circuits and specialized modules, we have everything 
+                you need for your next project.
+              </p>
+              <Link to="/shop">
+                <Button size="lg" className="w-full">
+                  Browse Components <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
