@@ -4,6 +4,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
+import CircuitAnimation from "../three/CircuitAnimation"
 
 interface Slide {
   imageUrl: string;
@@ -28,7 +29,10 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
   }, [slides.length]);
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative overflow-hidden">
+      {/* 3D Circuit Animation Layer */}
+      <CircuitAnimation className="hidden md:block" />
+      
       <Carousel
         opts={{
           loop: true,
@@ -36,7 +40,6 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
           startIndex: currentSlide,
         }}
         className="w-full"
-        // Fix: Use the correct event parameter and extract the index from the API
         onSelect={(event) => {
           // The Carousel onSelect provides a React event, not an index
           // We'll get the current slide from the Carousel API after the event
@@ -77,14 +80,16 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
         <CarouselNext className="right-4 z-10" />
       </Carousel>
       
-      {/* Slide indicators */}
+      {/* Enhanced 3D-style slide indicators */}
       <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
         {slides.map((_, index) => (
           <div 
             key={index} 
             onClick={() => setCurrentSlide(index)}
-            className={`h-2 w-12 rounded-full cursor-pointer transition-colors duration-300 ${
-              index === currentSlide ? "bg-white" : "bg-white/50 hover:bg-white/80"
+            className={`h-2 w-12 rounded-full cursor-pointer transition-all duration-300 ${
+              index === currentSlide 
+                ? "bg-white shadow-glow transform scale-110" 
+                : "bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,13 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useProductStore } from "@/store/productStore";
 import { useCartStore } from "@/store/cartStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import { ChevronLeft, Minus, Plus, ShoppingCart, Cpu, Chip } from "lucide-react";
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
   const { products, fetchProducts, getProductById, isLoading } = useProductStore();
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
+  const [isRotating, setIsRotating] = useState(false);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -38,6 +38,10 @@ const ProductDetail = () => {
     if (product) {
       addToCart(product.id, quantity);
     }
+  };
+
+  const toggleRotate = () => {
+    setIsRotating(!isRotating);
   };
 
   if (isLoading) {
@@ -92,20 +96,36 @@ const ProductDetail = () => {
 
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/2">
-            <div className="bg-gray-100 h-96 flex items-center justify-center rounded-lg overflow-hidden">
+            <div 
+              className={`bg-gray-100 h-96 flex items-center justify-center rounded-lg overflow-hidden component-card ${isRotating ? 'animate-pulse' : ''}`}
+              onClick={toggleRotate}
+            >
               {product.image_url ? (
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="h-full w-full object-contain"
+                  className={`h-full w-full object-contain transition-all duration-1000 ${isRotating ? 'rotate-y-180' : ''}`}
+                  style={{ transformStyle: 'preserve-3d' }}
                 />
               ) : (
-                <div className="text-gray-400">No image available</div>
+                <div className="text-gray-400 flex flex-col items-center justify-center">
+                  <Chip className="h-16 w-16 mb-4 text-blue-300" />
+                  <span>No image available</span>
+                  <span className="text-sm mt-2 text-blue-400">Click to see component details</span>
+                </div>
               )}
             </div>
+            <p className="text-center text-sm text-gray-500 mt-2">Click image to rotate</p>
           </div>
 
           <div className="flex-1">
+            <div className="mb-2 flex items-center">
+              <span className="led-indicator"></span>
+              <span className="text-sm text-green-600 font-medium">
+                Electronic Component
+              </span>
+            </div>
+            
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <p className="text-2xl font-bold text-blue-600 mb-4">
               ${Number(product.price).toFixed(2)}
@@ -126,6 +146,19 @@ const ProductDetail = () => {
               <p>{product.description}</p>
             </div>
 
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <h3 className="font-semibold flex items-center mb-2">
+                <Cpu className="mr-2 h-4 w-4 text-blue-600" />
+                Technical Specifications
+              </h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>Manufacturer: {product.category?.name || "Unknown"}</li>
+                <li>SKU: {product.id.substring(0, 8)}</li>
+                <li>Condition: New</li>
+                <li>Warranty: 1 Year Limited</li>
+              </ul>
+            </div>
+
             <div className="mb-6">
               <p className="text-gray-700 mb-1">Availability:</p>
               {product.stock_quantity > 0 ? (
@@ -141,7 +174,7 @@ const ProductDetail = () => {
               <>
                 <div className="flex items-center space-x-4 mb-6">
                   <p className="text-gray-700">Quantity:</p>
-                  <div className="flex items-center border rounded-md">
+                  <div className="flex items-center border rounded-md shadow-sm">
                     <button
                       onClick={handleDecrementQuantity}
                       className="px-3 py-1 text-gray-700 hover:bg-gray-100"
@@ -162,7 +195,7 @@ const ProductDetail = () => {
 
                 <Button
                   onClick={handleAddToCart}
-                  className="w-full md:w-auto"
+                  className="w-full md:w-auto component-card"
                   size="lg"
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
@@ -173,7 +206,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Related Products */}
+        {/* Related Products with Enhanced 3D Cards */}
         {products.length > 1 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold mb-6">Related Products</h2>
@@ -189,16 +222,18 @@ const ProductDetail = () => {
                     key={relatedProduct.id}
                     to={`/product/${relatedProduct.id}`}
                   >
-                    <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
+                    <Card className="overflow-hidden h-full component-card">
                       <div className="h-40 bg-gray-100 flex items-center justify-center">
                         {relatedProduct.image_url ? (
                           <img
                             src={relatedProduct.image_url}
                             alt={relatedProduct.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                           />
                         ) : (
-                          <div className="text-gray-400">No image</div>
+                          <div className="text-gray-400 flex items-center justify-center">
+                            <Chip className="h-10 w-10 text-blue-300" />
+                          </div>
                         )}
                       </div>
                       <CardContent className="p-4">

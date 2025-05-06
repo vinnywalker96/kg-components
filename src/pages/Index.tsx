@@ -1,8 +1,7 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShoppingBag, TrendingUp, Award, Box, RefreshCcw, Shield, Clock, Cpu, Zap } from "lucide-react";
+import { ArrowRight, ShoppingBag, TrendingUp, Award, Box, RefreshCcw, Shield, Clock, Cpu, Chip } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import HeroSlideshow from "@/components/home/HeroSlideshow";
 import FeaturedProductsSlideshow from "@/components/home/FeaturedProductsSlideshow";
@@ -18,24 +17,24 @@ const Index = () => {
 
   const featuredProducts = products.slice(0, 8);
 
-  // Hero slideshow data with better images
+  // Enhanced hero slideshow data with better electronic-focused images
   const heroSlides = [
     {
-      imageUrl: "https://images.unsplash.com/photo-1580508174046-170816f65662?q=80&w=1770&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=3000&auto=format&fit=crop",
       title: "Premium Electronic Components",
       description: "Professional tools and components for engineers, hobbyists, and businesses",
       buttonText: "Shop Now",
       buttonLink: "/shop"
     },
     {
-      imageUrl: "https://images.unsplash.com/photo-1603732551658-5fabbafa65b7?q=80&w=1770&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=3000&auto=format&fit=crop",
       title: "Test & Measurement Equipment",
       description: "Precision instruments for accurate readings and reliable results",
       buttonText: "Explore",
       buttonLink: "/shop?category=Test%20and%20Measurements"
     },
     {
-      imageUrl: "https://images.unsplash.com/photo-1620283085439-39620a1e21c4?q=80&w=1770&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=3000&auto=format&fit=crop",
       title: "Professional Tools For Every Task",
       description: "High-quality equipment from trusted brands with guaranteed performance",
       buttonText: "View Tools",
@@ -45,26 +44,26 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Slideshow Section */}
+      {/* Hero Slideshow Section with 3D Animation */}
       <HeroSlideshow slides={heroSlides} />
 
-      {/* Promo Banner */}
+      {/* Promo Banner with LED indicator */}
       <section className="bg-blue-50 py-4 border-b border-blue-100">
         <div className="container mx-auto px-4">
           <div className="flex justify-center items-center text-blue-800">
-            <Zap className="h-5 w-5 mr-2" /> 
+            <span className="led-indicator"></span>
             <p className="font-medium">Free shipping on orders over $100 | <span className="underline cursor-pointer">Learn More</span></p>
           </div>
         </div>
       </section>
 
-      {/* Value Props Section */}
+      {/* Value Props Section with Enhanced 3D Cards */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="flex items-start space-x-4 group">
+            <div className="flex items-start space-x-4 group component-card p-6 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full transition-all group-hover:bg-blue-200">
-                <ShoppingBag className="h-6 w-6 text-blue-700" />
+                <Chip className="h-6 w-6 text-blue-700" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Premium Selection</h3>
@@ -72,7 +71,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 group">
+            <div className="flex items-start space-x-4 group component-card p-6 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full transition-all group-hover:bg-blue-200">
                 <Shield className="h-6 w-6 text-blue-700" />
               </div>
@@ -82,7 +81,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 group">
+            <div className="flex items-start space-x-4 group component-card p-6 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full transition-all group-hover:bg-blue-200">
                 <Clock className="h-6 w-6 text-blue-700" />
               </div>
@@ -92,7 +91,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 group">
+            <div className="flex items-start space-x-4 group component-card p-6 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full transition-all group-hover:bg-blue-200">
                 <Cpu className="h-6 w-6 text-blue-700" />
               </div>
@@ -105,8 +104,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Visual Banner */}
-      <section className="py-12 relative">
+      {/* Visual Banner with Circuit Board Background */}
+      <section className="py-12 relative circuit-bg">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-900 opacity-90"></div>
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1580508174046-170816f65662?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat mix-blend-overlay"></div>
         <div className="container mx-auto px-4 py-16 relative z-10">
