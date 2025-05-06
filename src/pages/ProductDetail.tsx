@@ -7,6 +7,7 @@ import { useProductStore } from "@/store/productStore";
 import { useCartStore } from "@/store/cartStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, Minus, Plus, ShoppingCart, Cpu, CircuitBoard } from "lucide-react";
+import ComponentViewer from "@/components/three/ComponentViewer";
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -14,6 +15,7 @@ const ProductDetail = () => {
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
   const [isRotating, setIsRotating] = useState(false);
+  const [showThreeDView, setShowThreeDView] = useState(false);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -22,6 +24,24 @@ const ProductDetail = () => {
   }, [fetchProducts, products.length]);
 
   const product = productId ? getProductById(productId) : undefined;
+
+  // Determine the component type based on the product category or name
+  const getComponentType = () => {
+    if (!product) return 'generic';
+    
+    const name = product.name.toLowerCase();
+    const category = product.category?.name.toLowerCase() || '';
+    
+    if (name.includes('resistor') || category.includes('resistor')) {
+      return 'resistor';
+    } else if (name.includes('capacitor') || category.includes('capacitor')) {
+      return 'capacitor';
+    } else if (name.includes('ic') || name.includes('chip') || name.includes('microcontroller') || name.includes('processor')) {
+      return 'ic';
+    } else {
+      return 'generic';
+    }
+  };
 
   const handleDecrementQuantity = () => {
     if (quantity > 1) {
@@ -43,6 +63,10 @@ const ProductDetail = () => {
 
   const toggleRotate = () => {
     setIsRotating(!isRotating);
+  };
+
+  const toggleThreeDView = () => {
+    setShowThreeDView(!showThreeDView);
   };
 
   if (isLoading) {
@@ -101,22 +125,39 @@ const ProductDetail = () => {
               className={`bg-gray-100 h-96 flex items-center justify-center rounded-lg overflow-hidden component-card ${isRotating ? 'animate-pulse' : ''}`}
               onClick={toggleRotate}
             >
-              {product.image_url ? (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className={`h-full w-full object-contain transition-all duration-1000 ${isRotating ? 'rotate-y-180' : ''}`}
-                  style={{ transformStyle: 'preserve-3d' }}
+              {showThreeDView ? (
+                <ComponentViewer 
+                  componentType={getComponentType()} 
+                  className="w-full h-full" 
                 />
               ) : (
-                <div className="text-gray-400 flex flex-col items-center justify-center">
-                  <CircuitBoard className="h-16 w-16 mb-4 text-blue-300" />
-                  <span>No image available</span>
-                  <span className="text-sm mt-2 text-blue-400">Click to see component details</span>
-                </div>
+                product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className={`h-full w-full object-contain transition-all duration-1000 ${isRotating ? 'rotate-y-180' : ''}`}
+                    style={{ transformStyle: 'preserve-3d' }}
+                  />
+                ) : (
+                  <div className="text-gray-400 flex flex-col items-center justify-center">
+                    <CircuitBoard className="h-16 w-16 mb-4 text-blue-300" />
+                    <span>No image available</span>
+                    <span className="text-sm mt-2 text-blue-400">Click to see component details</span>
+                  </div>
+                )
               )}
             </div>
-            <p className="text-center text-sm text-gray-500 mt-2">Click image to rotate</p>
+            <div className="flex justify-between items-center mt-4">
+              <p className="text-center text-sm text-gray-500">Click image to rotate</p>
+              <Button
+                onClick={toggleThreeDView}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                {showThreeDView ? "Show Photo" : "View 3D Model"}
+              </Button>
+            </div>
           </div>
 
           <div className="flex-1">
