@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useProductStore } from "@/store/productStore";
 import { useCartStore } from "@/store/cartStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Minus, Plus, ShoppingCart, Cpu, Chip } from "lucide-react";
+import { ChevronLeft, Minus, Plus, ShoppingCart, Cpu, CircuitBoard } from "lucide-react";
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -109,7 +110,7 @@ const ProductDetail = () => {
                 />
               ) : (
                 <div className="text-gray-400 flex flex-col items-center justify-center">
-                  <Chip className="h-16 w-16 mb-4 text-blue-300" />
+                  <CircuitBoard className="h-16 w-16 mb-4 text-blue-300" />
                   <span>No image available</span>
                   <span className="text-sm mt-2 text-blue-400">Click to see component details</span>
                 </div>
@@ -232,7 +233,7 @@ const ProductDetail = () => {
                           />
                         ) : (
                           <div className="text-gray-400 flex items-center justify-center">
-                            <Chip className="h-10 w-10 text-blue-300" />
+                            <CircuitBoard className="h-10 w-10 text-blue-300" />
                           </div>
                         )}
                       </div>

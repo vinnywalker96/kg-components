@@ -1,7 +1,8 @@
+
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShoppingBag, TrendingUp, Award, Box, RefreshCcw, Shield, Clock, Cpu, Chip } from "lucide-react";
+import { ArrowRight, ShoppingBag, TrendingUp, Award, Box, RefreshCcw, Shield, Clock, Cpu, CircuitBoard } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import HeroSlideshow from "@/components/home/HeroSlideshow";
 import FeaturedProductsSlideshow from "@/components/home/FeaturedProductsSlideshow";
@@ -63,7 +64,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex items-start space-x-4 group component-card p-6 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full transition-all group-hover:bg-blue-200">
-                <Chip className="h-6 w-6 text-blue-700" />
+                <CircuitBoard className="h-6 w-6 text-blue-700" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Premium Selection</h3>
