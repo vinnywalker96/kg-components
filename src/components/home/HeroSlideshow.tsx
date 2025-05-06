@@ -57,11 +57,11 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
                 <img 
                   src={slide.imageUrl}
                   alt={slide.title}
-                  className="w-full h-full object-cover hero-image transition-transform duration-700"
+                  className="w-full h-full object-cover hero-image transition-transform duration-700 scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-transparent flex items-center">
-                  <div className="container mx-auto px-4">
-                    <div className="max-w-2xl text-white">
+                  <div className="container mx-auto px-6">
+                    <div className="max-w-2xl text-white backdrop-blur-sm bg-black/20 p-6 rounded-lg border border-white/10 shadow-xl">
                       <h2 className="text-4xl md:text-5xl font-bold mb-4 hero-title">{slide.title}</h2>
                       <p className="text-xl mb-8 text-white/90 hero-description">{slide.description}</p>
                       <Link to={slide.buttonLink} className="hero-button">
@@ -76,17 +76,17 @@ const HeroSlideshow = ({ slides }: HeroSlideshowProps) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-4 z-10" />
-        <CarouselNext className="right-4 z-10" />
+        <CarouselPrevious className="left-6 z-10" />
+        <CarouselNext className="right-6 z-10" />
       </Carousel>
       
       {/* Enhanced 3D-style slide indicators */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-10">
         {slides.map((_, index) => (
           <div 
             key={index} 
             onClick={() => setCurrentSlide(index)}
-            className={`h-2 w-12 rounded-full cursor-pointer transition-all duration-300 ${
+            className={`h-2 w-16 rounded-full cursor-pointer transition-all duration-300 ${
               index === currentSlide 
                 ? "bg-white shadow-glow transform scale-110" 
                 : "bg-white/50 hover:bg-white/80"

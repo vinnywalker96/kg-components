@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   margin: 0 auto;
@@ -20,7 +21,7 @@
 
 /* Image transitions */
 .hero-image {
-  transition: transform 0.5s ease;
+  transition: transform 0.8s ease;
 }
 
 .hero-image:hover {
@@ -125,6 +126,23 @@
   box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.6);
 }
 
+/* Text gradient effect */
+.text-gradient {
+  background: linear-gradient(90deg, #fff, #a3c5ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Glass morphism effect */
+.glass-morphism {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
 /* Enhanced hero image animations */
 .hero-image {
   transition: transform 0.5s ease;
@@ -213,4 +231,30 @@
   display: inline-block;
   margin-right: 8px;
   animation: ledBlink 5s infinite;
+}
+
+/* Background pattern for sections */
+.bg-pattern-1 {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 20.83l2.83-2.83 1.41 1.41L1.41 22H0v-1.17zM0 3.07l2.83-2.83 1.41 1.41L1.41 4.24H0V3.07zM17.17 0l2.83 2.83-1.41 1.41L15.76 1.41V0h1.41zM34.93 0l2.83 2.83-1.41 1.41L33.52 1.41V0h1.41zM3.07 0l2.83 2.83-1.41 1.41L1.66 1.41V0h1.41zM20.83 0l2.83 2.83-1.41 1.41L19.42 1.41V0h1.41zM38.59 0l2.83 2.83-1.41 1.41L37.18 1.41V0h1.41zM20 0v1.41l2.83 2.83 1.41-1.41L21.41 0H20zm0 18.59v1.41l2.83 2.83 1.41-1.41L21.41 18.59H20zm0 17.17v1.41l2.83 2.83 1.41-1.41L21.41 35.76H20zM0 17.17v1.41l2.83 2.83 1.41-1.41L1.41 17.17H0zm0 17.17v1.41l2.83 2.83 1.41-1.41L1.41 34.34H0zM17.17 40v-1.41l2.83-2.83 1.41 1.41-2.83 2.83H17.17zm17.17 0v-1.41l2.83-2.83 1.41 1.41-2.83 2.83H34.34zm-17.17-20v-1.41l2.83-2.83 1.41 1.41-2.83 2.83H17.17zM34.34 20v-1.41l2.83-2.83 1.41 1.41-2.83 2.83H34.34z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Water ripple effect */
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 110, 255, 0.3),
+                0 0 0 1px rgba(0, 110, 255, 0.3),
+                0 0 0 3px rgba(0, 110, 255, 0.3),
+                0 0 0 5px rgba(0, 110, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 110, 255, 0.3),
+                0 0 0 5px rgba(0, 110, 255, 0.3),
+                0 0 0 10px rgba(0, 110, 255, 0),
+                0 0 0 15px rgba(0, 110, 255, 0);
+  }
+}
+
+.ripple-effect {
+  animation: ripple 2s linear infinite;
 }
