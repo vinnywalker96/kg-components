@@ -1,12 +1,12 @@
-import { CartItems } from "@/components/cart/cart-items"
-import { CartSummary } from "@/components/cart/cart-summary"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import { Metadata } from "next"
+import { CartItems } from '@/components/cart/cart-items'
+import { CartSummary } from '@/components/cart/cart-summary'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Shopping Cart | KG-Components",
-  description: "View and manage items in your shopping cart.",
+  title: 'Shopping Cart | KG-Components',
+  description: 'View and manage items in your shopping cart.',
 }
 
 export default async function CartPage() {
@@ -15,16 +15,20 @@ export default async function CartPage() {
   const { data: { session } } = await supabase.auth.getSession()
   
   if (!session) {
-    redirect("/auth?redirect=/cart")
+    redirect('/auth?redirect=/cart')
   }
   
   const { data: cartItems } = await supabase
-    .from("cart_items")
+    .from('cart_items')
     .select(`
       *,
-      product:products(*)
+      product:products(
+        *,
+        category:categories(name)
+      )
     `)
-    .eq("user_id", session.user.id)
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
   
   return (
     <div className="container mx-auto px-4 py-12">

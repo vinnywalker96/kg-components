@@ -1,19 +1,16 @@
+import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
-import { Toaster } from "@/components/ui/toaster"
-import { Toaster as SonnerToaster } from "@/components/ui/sonner"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
+import { ThemeProvider } from '@/components/providers/theme-provider'
+import { Footer } from '@/components/layout/footer'
+import { Navbar } from '@/components/layout/navbar'
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
-import { QueryProvider } from '@/components/providers/query-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'KG-Components | Electronic Components Store',
-  description: 'Quality Electronic Components for Every Project. Shop for tools, accessories, components, power products, and test & measurement equipment.',
+  description: 'Quality electronic components for hobbyists and professionals.',
 }
 
 export default function RootLayout({
@@ -22,25 +19,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
+          disableTransitionOnChange
         >
           <SupabaseProvider>
-            <QueryProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-              <Toaster />
-              <SonnerToaster />
-            </QueryProvider>
+            <div className="flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
           </SupabaseProvider>
         </ThemeProvider>
       </body>

@@ -1,70 +1,46 @@
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { CategoriesTable } from "@/components/admin/categories/categories-table"
-import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/server"
-import { Plus } from "lucide-react"
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { Metadata } from "next"
+import { Button } from '@/components/ui/button'
+import { CategoriesTable } from '@/components/admin/categories/categories-table'
+import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
+import { Plus } from 'lucide-react'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Manage Categories | KG-Components Admin",
-  description: "Add, edit, and manage product categories in your KG-Components store.",
+  title: 'Manage Categories | Admin Dashboard',
+  description: 'Add, edit, and manage product categories in your store.',
 }
 
 export default async function AdminCategoriesPage() {
   const supabase = createClient()
   
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  if (!session) {
-    redirect("/auth")
-  }
-  
-  const { data: profile } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .eq("id", session.user.id)
-    .single()
-  
-  if (!profile?.is_admin) {
-    redirect("/")
-  }
-  
+  // Get categories with product count
   const { data: categories } = await supabase
-    .from("categories")
+    .from('categories')
     .select(`
       *,
-      products:products(id)
+      products:products(count)
     `)
-    .order("name")
+    .order('name', { ascending: true })
   
-  // Count products in each category
+  // Transform data to include product count
   const categoriesWithCount = categories?.map(category => ({
     ...category,
-    product_count: category.products?.length || 0
+    product_count: category.products.length
   })) || []
   
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-64">
-          <AdminSidebar />
-        </div>
-        <div className="flex-grow">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Manage Categories</h1>
-            <Link href="/admin/categories/new">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Category
-              </Button>
-            </Link>
-          </div>
-          
-          <CategoriesTable categories={categoriesWithCount} />
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Categories</h1>
+        <Button asChild>
+          <Link href="/admin/categories/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Category
+          </Link>
+        </Button>
       </div>
+      
+      <CategoriesTable categories={categoriesWithCount} />
     </div>
   )
 }

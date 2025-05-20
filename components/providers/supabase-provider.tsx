@@ -2,12 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { Session, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from '@/types/supabase'
+import type { SupabaseClient, Session } from '@supabase/supabase-js'
 
 type SupabaseContext = {
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient
   session: Session | null
 }
 
@@ -16,20 +14,18 @@ const Context = createContext<SupabaseContext | undefined>(undefined)
 export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [supabase] = useState(() => createClient())
   const [session, setSession] = useState<Session | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((_, session) => {
       setSession(session)
-      router.refresh()
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase, router])
+  }, [supabase])
 
   return (
     <Context.Provider value={{ supabase, session }}>

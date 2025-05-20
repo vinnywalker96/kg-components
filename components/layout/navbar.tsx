@@ -4,180 +4,232 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, User, Menu, X } from 'lucide-react'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { useSupabase } from '@/components/providers/supabase-provider'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ShoppingCart, Menu, X, User, LogOut } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const { supabase, session } = useSupabase()
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [cartItemCount, setCartItemCount] = useState(0)
+  
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
-
-  const closeMenu = () => {
+    // Close menus when route changes
     setIsMenuOpen(false)
+    setIsUserMenuOpen(false)
+  }, [pathname])
+  
+  useEffect(() => {
+    if (!session) return
+    
+    // Get cart item count
+    const fetchCartCount = async () => {
+      const { data, error } = await supabase
+        .from('cart_items')
+        .select('quantity')
+        .eq('user_id', session.user.id)
+      
+      if (error) {
+        console.error('Error fetching cart count:', error)
+        return
+      }
+      
+      const count = data.reduce((sum, item) => sum + item.quantity, 0)
+      setCartItemCount(count)
+    }
+    
+    fetchCartCount()
+    
+    // Subscribe to changes
+    const channel = supabase
+      .channel('cart_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cart_items',
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        () => {
+          fetchCartCount()
+        }
+      )
+      .subscribe()
+    
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [supabase, session])
+  
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
   }
-
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/shop', label: 'Shop' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
-  ]
-
+  
+  const isAdmin = session?.user?.user_metadata?.is_admin
+  
   return (
-    <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled ? 'bg-background/95 backdrop-blur-sm shadow-sm' : 'bg-background'
-      }`}
-    >
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center" onClick={closeMenu}>
-              <span className="text-2xl font-bold text-primary">KG</span>
-              <span className="text-2xl font-bold">Components</span>
+            <Link href="/" className="text-xl font-bold mr-8">
+              KG-Components
             </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
+            
+            <nav className="hidden md:flex items-center space-x-6">
               <Link
-                key={link.href}
-                href={link.href}
+                href="/"
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === link.href ? 'text-primary' : 'text-foreground/70'
+                  pathname === '/' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
-                {link.label}
+                Home
               </Link>
-            ))}
-          </nav>
-
-          <div className="hidden md:flex items-center space-x-4">
+              <Link
+                href="/account"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === '/account' ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                Shop
+              </Link>
+              <Link
+                href="/about"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === '/about' ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === '/contact' ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                Contact
+              </Link>
+            </nav>
+          </div>
+          
+          <div className="flex items-center space-x-4">
             <ThemeToggle />
             
             {session ? (
               <>
                 <Link href="/cart">
-                  <Button variant="ghost" size="icon" aria-label="Shopping Cart">
+                  <Button variant="ghost" size="icon" className="relative">
                     <ShoppingCart className="h-5 w-5" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartItemCount}
+                      </span>
+                    )}
                   </Button>
                 </Link>
-                <Link href="/account">
-                  <Button variant="ghost" size="icon" aria-label="Account">
+                
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  >
                     <User className="h-5 w-5" />
                   </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    await supabase.auth.signOut()
-                  }}
-                >
-                  Sign Out
-                </Button>
+                  
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg border overflow-hidden">
+                      <div className="px-4 py-2 border-b">
+                        <p className="text-sm font-medium truncate">
+                          {session.user.email}
+                        </p>
+                      </div>
+                      <div className="py-1">
+                        <Link
+                          href="/account"
+                          className="block px-4 py-2 text-sm hover:bg-muted"
+                        >
+                          My Account
+                        </Link>
+                        <Link
+                          href="/orders"
+                          className="block px-4 py-2 text-sm hover:bg-muted"
+                        >
+                          My Orders
+                        </Link>
+                        {isAdmin && (
+                          <Link
+                            href="/admin"
+                            className="block px-4 py-2 text-sm hover:bg-muted"
+                          >
+                            Admin Dashboard
+                          </Link>
+                        )}
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center"
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
-              <Link href="/auth">
-                <Button>Sign In</Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-2">
-            <ThemeToggle />
-            
-            {session && (
-              <Link href="/cart">
-                <Button variant="ghost" size="icon" aria-label="Shopping Cart">
-                  <ShoppingCart className="h-5 w-5" />
-                </Button>
-              </Link>
+              <Button asChild variant="default" size="sm">
+                <Link href="/auth">Sign In</Link>
+              </Button>
             )}
             
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Toggle Menu"
-              onClick={toggleMenu}
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? (
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               ) : (
-                <Menu className="h-5 w-5" />
+                <Menu className="h-6 w-6" />
               )}
             </Button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
+      
+      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-background border-t">
+        <div className="md:hidden border-t">
           <div className="container mx-auto px-4 py-4 space-y-4">
-            <nav className="flex flex-col space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === link.href ? 'text-primary' : 'text-foreground/70'
-                  }`}
-                  onClick={closeMenu}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              
-              {session ? (
-                <>
-                  <Link
-                    href="/account"
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                    onClick={closeMenu}
-                  >
-                    My Account
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                    onClick={closeMenu}
-                  >
-                    My Orders
-                  </Link>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={async () => {
-                      await supabase.auth.signOut()
-                      closeMenu()
-                    }}
-                  >
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Link href="/auth" onClick={closeMenu}>
-                  <Button className="w-full">Sign In</Button>
-                </Link>
-              )}
-            </nav>
+            <Link
+              href="/"
+              className="block py-2 text-base font-medium"
+            >
+              Home
+            </Link>
+            <Link
+              href="/account"
+              className="block py-2 text-base font-medium"
+            >
+              Shop
+            </Link>
+            <Link
+              href="/about"
+              className="block py-2 text-base font-medium"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="block py-2 text-base font-medium"
+            >
+              Contact
+            </Link>
           </div>
         </div>
       )}
