@@ -1,73 +1,115 @@
-# Welcome to your Lovable project
+# KG-Components - Electronic Components E-commerce Platform
 
-## Project info
+KG-Components is a full-stack SaaS application for ordering electronic components. This platform provides a comprehensive solution for both customers and administrators to manage electronic component orders.
 
-**URL**: https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be
+## Features
 
-## How can I edit this code?
+### Customer Features
+- **Browse Products**: Explore products across multiple categories (Tools, Accessories, Components, Power Products, Test and Measurements)
+- **User Authentication**: Secure login and signup functionality
+- **User Portal**: Manage account details and view order history
+- **Shopping Cart**: Add products to cart and proceed to checkout
+- **Order Tracking**: Track the status of placed orders
 
-There are several ways of editing your application.
+### Admin Features
+- **Product Management**: Add, edit, and remove products
+- **Category Management**: Create and manage product categories
+- **Order Management**: Process orders and update order status
+- **User Management**: View and manage user accounts
+- **Dashboard**: View sales analytics and key metrics
 
-**Use Lovable**
+## Pages
+- **Home**: Landing page showcasing featured products and categories
+- **About**: Information about the company and its mission
+- **Contact**: Contact form and company information
+- **Login/Signup**: User authentication pages
+- **Shop**: Browse and search for products
+- **Product Detail**: Detailed view of individual products
+- **Cart**: View and manage items in shopping cart
+- **User Portal**: User account management
+- **Admin Dashboard**: Comprehensive admin interface
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be) and start prompting.
+## Technology Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- React with TypeScript
+- Vite for fast development and building
+- Tailwind CSS for styling
+- shadcn/ui component library
+- React Router for navigation
+- Zustand for state management
+- React Query for data fetching
+- Three.js for 3D product visualization
 
-**Use your preferred IDE**
+### Backend
+- Supabase for authentication, database, and storage
+- PostgreSQL database
+- Supabase Edge Functions for serverless functionality
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn package manager
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/kg-components.git
+cd kg-components
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Set up environment variables
+Create a `.env` file in the root directory with the following variables:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-**Use GitHub Codespaces**
+4. Start the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+5. Open your browser and navigate to `http://localhost:5173`
 
-## What technologies are used for this project?
+## Database Schema
 
-This project is built with:
+The application uses the following database tables:
+- `products`: Stores product information
+- `categories`: Stores product categories
+- `user_profiles`: Stores user profile information
+- `orders`: Stores order information
+- `order_items`: Stores items within orders
+- `cart_items`: Stores items in user carts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment
 
-## How can I deploy this project?
+This application can be deployed to any hosting service that supports Node.js applications, such as:
+- Vercel
+- Netlify
+- AWS Amplify
+- Heroku
 
-Simply open [Lovable](https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be) and click on Share -> Publish.
+## License
 
-## Can I connect a custom domain to my Lovable project?
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Yes, you can!
+## Acknowledgements
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- [Supabase](https://supabase.io/) for backend services
+- [shadcn/ui](https://ui.shadcn.com/) for UI components
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [React](https://reactjs.org/) for the frontend framework
+- [Vite](https://vitejs.dev/) for the build tool
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
