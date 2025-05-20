@@ -1,146 +1,187 @@
-
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock } from "lucide-react";
 
 const Contact = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     // Simulate form submission
     setTimeout(() => {
       toast({
-        title: "Message sent",
-        description: "We've received your message and will respond shortly.",
+        title: "Message Sent",
+        description: "Thank you for your message. We'll get back to you soon!",
       });
-      
-      // Reset form
       setName("");
       setEmail("");
       setSubject("");
       setMessage("");
-      setIsLoading(false);
-    }, 1000);
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   return (
-    <div className="bg-white">
-      {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4 text-center">Contact Us</h1>
-          <p className="max-w-2xl mx-auto text-center text-lg">
-            We're here to help with any questions about our products or services.
-            Reach out to our team for assistance.
-          </p>
-        </div>
-      </section>
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6">Contact Us</h1>
+        <Separator className="mb-8" />
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          <div>
-            <h2 className="text-2xl font-semibold mb-6 text-blue-900">Get in Touch</h2>
-            <p className="text-gray-600 mb-8">
-              We'd love to hear from you! Whether you have a question about our products, need technical assistance, or want to discuss a business opportunity, our team is ready to help.
-            </p>
-
-            <Card className="shadow-lg border-0 overflow-hidden mb-8">
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="bg-blue-100 p-3 rounded-full mr-4">
-                      <MapPin className="h-6 w-6 text-blue-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-900">Our Address</h3>
-                      <p className="text-gray-600">
-                        123 Component Street<br />
-                        Tech City, TC 12345<br />
-                        United States
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="bg-blue-100 p-3 rounded-full mr-4">
-                      <Mail className="h-6 w-6 text-blue-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-900">Email Us</h3>
-                      <p className="text-gray-600">info@kgcomponents.com</p>
-                      <p className="text-gray-600">support@kgcomponents.com</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="bg-blue-100 p-3 rounded-full mr-4">
-                      <Phone className="h-6 w-6 text-blue-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-900">Call Us</h3>
-                      <p className="text-gray-600">+1 (555) 123-4567</p>
-                      <p className="text-gray-600">+1 (555) 765-4321</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Contact Information */}
+          <div className="md:col-span-1 space-y-8">
             <div>
-              <h2 className="text-2xl font-semibold mb-4 text-blue-900">Business Hours</h2>
-              <Card className="shadow-lg border-0">
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <div className="flex justify-between border-b pb-2">
-                      <span className="font-medium text-blue-900">Monday - Friday:</span>
-                      <span className="text-gray-700">9:00 AM - 6:00 PM</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span className="font-medium text-blue-900">Saturday:</span>
-                      <span className="text-gray-700">10:00 AM - 4:00 PM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium text-blue-900">Sunday:</span>
-                      <span className="text-gray-700">Closed</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <h2 className="text-2xl font-semibold mb-4">Get In Touch</h2>
+              <p className="text-gray-700 mb-6">
+                Have questions about our products or need technical assistance?
+                Our team is here to help. Reach out to us using any of the
+                methods below.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <Mail className="h-5 w-5 text-blue-600 mt-1 mr-3" />
+                <div>
+                  <h3 className="font-medium">Email</h3>
+                  <p className="text-gray-600">support@kg-components.com</p>
+                  <p className="text-gray-600">sales@kg-components.com</p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <Phone className="h-5 w-5 text-blue-600 mt-1 mr-3" />
+                <div>
+                  <h3 className="font-medium">Phone</h3>
+                  <p className="text-gray-600">+1 (555) 123-4567</p>
+                  <p className="text-gray-600">+1 (555) 987-6543</p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <MapPin className="h-5 w-5 text-blue-600 mt-1 mr-3" />
+                <div>
+                  <h3 className="font-medium">Address</h3>
+                  <p className="text-gray-600">
+                    123 Electronics Way<br />
+                    Tech Park, Suite 456<br />
+                    San Francisco, CA 94107
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <Clock className="h-5 w-5 text-blue-600 mt-1 mr-3" />
+                <div>
+                  <h3 className="font-medium">Business Hours</h3>
+                  <p className="text-gray-600">Monday - Friday: 9AM - 6PM</p>
+                  <p className="text-gray-600">Saturday: 10AM - 4PM</p>
+                  <p className="text-gray-600">Sunday: Closed</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <h3 className="font-medium mb-2">Connect With Us</h3>
+              <div className="flex space-x-4">
+                <a
+                  href="#"
+                  className="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-full"
+                  aria-label="Facebook"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  className="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-full"
+                  aria-label="Twitter"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  className="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-full"
+                  aria-label="LinkedIn"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  className="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-full"
+                  aria-label="YouTube"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
 
-          <div>
-            <h2 className="text-2xl font-semibold mb-6 text-blue-900">Send Us a Message</h2>
-            <Card className="shadow-lg border-0">
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Contact Form */}
+          <div className="md:col-span-2">
+            <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-semibold mb-6">Send Us a Message</h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-blue-900 font-medium">Your Name</Label>
+                    <Label htmlFor="name">Your Name</Label>
                     <Input
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Doe"
                       required
-                      disabled={isLoading}
-                      className="border-gray-300 focus:border-blue-700 focus:ring-blue-700"
+                      disabled={isSubmitting}
                     />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-blue-900 font-medium">Email Address</Label>
+                    <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
@@ -148,62 +189,91 @@ const Contact = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="john@example.com"
                       required
-                      disabled={isLoading}
-                      className="border-gray-300 focus:border-blue-700 focus:ring-blue-700"
+                      disabled={isSubmitting}
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-blue-900 font-medium">Subject</Label>
-                    <Input
-                      id="subject"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="How can we help you?"
-                      required
-                      disabled={isLoading}
-                      className="border-gray-300 focus:border-blue-700 focus:ring-blue-700"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="message" className="text-blue-900 font-medium">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Write your message here..."
-                      rows={6}
-                      required
-                      disabled={isLoading}
-                      className="border-gray-300 focus:border-blue-700 focus:ring-blue-700 resize-none"
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-md transition"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" /> Send Message
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4 text-blue-900">Find Us</h2>
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <div className="bg-gray-200 h-80 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Map placeholder - Google Maps would be embedded here</p>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="How can we help you?"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Please provide details about your inquiry..."
+                    rows={6}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full md:w-auto"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                </Button>
+              </form>
+            </div>
+
+            {/* Map */}
+            <div className="mt-8 rounded-lg overflow-hidden h-64 bg-gray-200">
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                <p>Map will be displayed here</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-semibold mb-6">Frequently Asked Questions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="font-medium text-lg mb-2">What are your shipping options?</h3>
+              <p className="text-gray-700">
+                We offer standard shipping (3-5 business days), express shipping
+                (1-2 business days), and same-day delivery for select areas.
+                Shipping costs are calculated at checkout based on your location
+                and order size.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="font-medium text-lg mb-2">Do you offer international shipping?</h3>
+              <p className="text-gray-700">
+                Yes, we ship to most countries worldwide. International shipping
+                times vary by destination, typically ranging from 7-14 business
+                days. Import duties and taxes may apply.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="font-medium text-lg mb-2">What is your return policy?</h3>
+              <p className="text-gray-700">
+                We accept returns within 30 days of delivery for most products
+                in their original packaging. Custom orders and certain
+                components may have different return policies.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+              <h3 className="font-medium text-lg mb-2">Do you offer bulk discounts?</h3>
+              <p className="text-gray-700">
+                Yes, we offer volume discounts for bulk orders. Please contact
+                our sales team at sales@kg-components.com for a custom quote
+                based on your specific requirements.
+              </p>
             </div>
           </div>
         </div>
@@ -213,3 +283,4 @@ const Contact = () => {
 };
 
 export default Contact;
+
