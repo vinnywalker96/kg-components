@@ -5044,7 +5044,7 @@ class StorageClient extends StorageBucketApi {
 } //# sourceMappingURL=StorageClient.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/@supabase/supabase-js/dist/module/lib/version.js
-const lib_version_version = "2.49.7"; //# sourceMappingURL=version.js.map
+const lib_version_version = "2.49.4"; //# sourceMappingURL=version.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/@supabase/supabase-js/dist/module/lib/constants.js
 
@@ -5183,16 +5183,13 @@ function stripTrailingSlash(url) {
 }
 const isBrowser = ()=>"undefined" !== "undefined";
 function applySettingDefaults(options, defaults) {
-    var _a, _b;
     const { db: dbOptions, auth: authOptions, realtime: realtimeOptions, global: globalOptions } = options;
     const { db: DEFAULT_DB_OPTIONS, auth: DEFAULT_AUTH_OPTIONS, realtime: DEFAULT_REALTIME_OPTIONS, global: DEFAULT_GLOBAL_OPTIONS } = defaults;
     const result = {
         db: Object.assign(Object.assign({}, DEFAULT_DB_OPTIONS), dbOptions),
         auth: Object.assign(Object.assign({}, DEFAULT_AUTH_OPTIONS), authOptions),
         realtime: Object.assign(Object.assign({}, DEFAULT_REALTIME_OPTIONS), realtimeOptions),
-        global: Object.assign(Object.assign(Object.assign({}, DEFAULT_GLOBAL_OPTIONS), globalOptions), {
-            headers: Object.assign(Object.assign({}, (_a = DEFAULT_GLOBAL_OPTIONS === null || DEFAULT_GLOBAL_OPTIONS === void 0 ? void 0 : DEFAULT_GLOBAL_OPTIONS.headers) !== null && _a !== void 0 ? _a : {}), (_b = globalOptions === null || globalOptions === void 0 ? void 0 : globalOptions.headers) !== null && _b !== void 0 ? _b : {})
-        }),
+        global: Object.assign(Object.assign({}, DEFAULT_GLOBAL_OPTIONS), globalOptions),
         accessToken: ()=>lib_helpers_awaiter(this, void 0, void 0, function*() {
                 return "";
             })
@@ -9060,14 +9057,12 @@ var SupabaseClient_awaiter = undefined && undefined.__awaiter || function(thisAr
         if (!supabaseUrl) throw new Error("supabaseUrl is required.");
         if (!supabaseKey) throw new Error("supabaseKey is required.");
         const _supabaseUrl = stripTrailingSlash(supabaseUrl);
-        const baseUrl = new URL(_supabaseUrl);
-        this.realtimeUrl = new URL("/realtime/v1", baseUrl);
-        this.realtimeUrl.protocol = this.realtimeUrl.protocol.replace("http", "ws");
-        this.authUrl = new URL("/auth/v1", baseUrl);
-        this.storageUrl = new URL("/storage/v1", baseUrl);
-        this.functionsUrl = new URL("/functions/v1", baseUrl);
+        this.realtimeUrl = `${_supabaseUrl}/realtime/v1`.replace(/^http/i, "ws");
+        this.authUrl = `${_supabaseUrl}/auth/v1`;
+        this.storageUrl = `${_supabaseUrl}/storage/v1`;
+        this.functionsUrl = `${_supabaseUrl}/functions/v1`;
         // default storage key uses the supabase project ref as a namespace
-        const defaultStorageKey = `sb-${baseUrl.hostname.split(".")[0]}-auth-token`;
+        const defaultStorageKey = `sb-${new URL(this.authUrl).hostname.split(".")[0]}-auth-token`;
         const DEFAULTS = {
             db: DEFAULT_DB_OPTIONS,
             realtime: DEFAULT_REALTIME_OPTIONS,
@@ -9106,7 +9101,7 @@ var SupabaseClient_awaiter = undefined && undefined.__awaiter || function(thisAr
     /**
      * Supabase Functions allows you to deploy and invoke edge functions.
      */ get functions() {
-        return new FunctionsClient(this.functionsUrl.href, {
+        return new FunctionsClient(this.functionsUrl, {
             headers: this.headers,
             customFetch: this.fetch
         });
@@ -9114,7 +9109,7 @@ var SupabaseClient_awaiter = undefined && undefined.__awaiter || function(thisAr
     /**
      * Supabase Storage allows you to manage user-generated content, such as photos or videos.
      */ get storage() {
-        return new StorageClient(this.storageUrl.href, this.headers, this.fetch);
+        return new StorageClient(this.storageUrl, this.headers, this.fetch);
     }
     /**
      * Perform a query on a table or a view.
@@ -9204,7 +9199,7 @@ var SupabaseClient_awaiter = undefined && undefined.__awaiter || function(thisAr
             apikey: `${this.supabaseKey}`
         };
         return new SupabaseAuthClient({
-            url: this.authUrl.href,
+            url: this.authUrl,
             headers: Object.assign(Object.assign({}, authHeaders), headers),
             storageKey: storageKey,
             autoRefreshToken,
@@ -9221,7 +9216,7 @@ var SupabaseClient_awaiter = undefined && undefined.__awaiter || function(thisAr
         });
     }
     _initRealtimeClient(options) {
-        return new RealtimeClient(this.realtimeUrl.href, Object.assign(Object.assign({}, options), {
+        return new RealtimeClient(this.realtimeUrl, Object.assign(Object.assign({}, options), {
             params: Object.assign({
                 apikey: this.supabaseKey
             }, options === null || options === void 0 ? void 0 : options.params)

@@ -8,11 +8,11 @@
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */let n=(0,s.Z)("Search",[["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}],["path",{d:"m21 21-4.3-4.3",key:"1qie3q"}]])},51018:(e,r,t)=>{"use strict";e.exports=t(27804)},33709:(e,r,t)=>{"use strict";t.r(r),t.d(r,{default:()=>u,metadata:()=>c});var s=t(4656),n=t(95153);let a=(0,n.createProxy)(String.raw`/tmp/vinnywalker96/kg-components/components/admin/orders/orders-table.tsx`),{__esModule:i,$$typeof:o}=a;a.default;let d=(0,n.createProxy)(String.raw`/tmp/vinnywalker96/kg-components/components/admin/orders/orders-table.tsx#OrdersTable`);var l=t(69978);let c={title:"Manage Orders | Admin Dashboard",description:"View and manage customer orders."};async function u(){let e=(0,l.e)(),{data:r}=await e.from("orders").select(`
+ */let n=(0,s.Z)("Search",[["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}],["path",{d:"m21 21-4.3-4.3",key:"1qie3q"}]])},33709:(e,r,t)=>{"use strict";t.r(r),t.d(r,{default:()=>u,metadata:()=>c});var s=t(4656),n=t(95153);let a=(0,n.createProxy)(String.raw`/tmp/vinnywalker96/kg-components/components/admin/orders/orders-table.tsx`),{__esModule:i,$$typeof:o}=a;a.default;let d=(0,n.createProxy)(String.raw`/tmp/vinnywalker96/kg-components/components/admin/orders/orders-table.tsx#OrdersTable`);var l=t(69978);let c={title:"Manage Orders | Admin Dashboard",description:"View and manage customer orders."};async function u(){let e=(0,l.e)(),{data:r}=await e.from("orders").select(`
       *,
       user:user_profiles(
         id,
         full_name,
         email
       )
-    `).order("created_at",{ascending:!1});return(0,s.jsxs)("div",{className:"space-y-6",children:[s.jsx("h1",{className:"text-3xl font-bold",children:"Orders"}),s.jsx(d,{orders:r||[]})]})}}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),s=r.X(0,[764,462,834],()=>t(74712));module.exports=s})();
+    `).order("created_at",{ascending:!1});return(0,s.jsxs)("div",{className:"space-y-6",children:[s.jsx("h1",{className:"text-3xl font-bold",children:"Orders"}),s.jsx(d,{orders:r||[]})]})}}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),s=r.X(0,[729,462,424],()=>t(74712));module.exports=s})();
