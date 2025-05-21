@@ -14,9 +14,10 @@ interface Product {
   updated_at: string
   category: {
     id: string
-    name: string
-  }
+
+ 
 }
+
 
 interface Category {
   id: string
@@ -34,21 +35,25 @@ interface ProductFilters {
   sort?: string
 }
 
+
 interface ProductState {
   products: Product[]
   featuredProducts: Product[]
-  categories: Category[]
+  categories: any[]
   isLoading: boolean
   error: string | null
   
   // Actions
+
   fetchProducts: (filters?: ProductFilters) => Promise<void>
   fetchFeaturedProducts: () => Promise<void>
   fetchCategories: () => Promise<void>
   searchProducts: (query: string) => Promise<void>
-}
 
-export const useProductStore = create<ProductState>((set) => ({
+
+
+
+export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
   featuredProducts: [],
   categories: [],
@@ -64,6 +69,7 @@ export const useProductStore = create<ProductState>((set) => ({
         .from('products')
         .select(`
           *,
+
           category:categories(id, name)
         `)
       
@@ -80,26 +86,62 @@ export const useProductStore = create<ProductState>((set) => ({
         query = query.lte('price', filters.maxPrice)
       }
       
+
+          category:categories(name)
+        `)
+      
+      // Apply category filter
+      if (filters.category) {
+        const { data: categoryData } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('name', filters.category)
+          .single()
+        
+        if (categoryData) {
+          query = query.eq('category_id', categoryData.id)
+        }
+      }
+      
+      // Apply price filters
+      if (filters.minPrice) {
+        query = query.gte('price', filters.minPrice)
+      }
+      
+      if (filters.maxPrice) {
+        query = query.lte('price', filters.maxPrice)
+      }
+      
+      // Apply search filter
+
       if (filters.search) {
         query = query.ilike('name', `%${filters.search}%`)
       }
       
       // Apply sorting
       if (filters.sort) {
-        const [field, direction] = filters.sort.split(':')
-        query = query.order(field, { ascending: direction === 'asc' })
+
+        const [field, order] = filters.sort.split('_')
+        query = query.order(field, { ascending: order === 'asc' })
       } else {
-        query = query.order('created_at', { ascending: false })
+        query = query.order('name', { ascending: true })
+
       }
       
       const { data, error } = await query
       
-      if (error) throw error
+
+   
+      if (error) {
+        throw error
+      }
       
-      set({ products: data as unknown as Product[], isLoading: false })
+      set({ products: data || [], isLoading: false })
+      return data || []
     } catch (error: any) {
-      console.error('Error fetching products:', error)
-      set({ isLoading: false, error: error.message })
+      set({ error: error.message, isLoading: false })
+      return []
+
     }
   },
   
@@ -112,17 +154,24 @@ export const useProductStore = create<ProductState>((set) => ({
         .from('products')
         .select(`
           *,
+
           category:categories(id, name)
+
         `)
         .eq('featured', true)
         .limit(6)
       
-      if (error) throw error
+
+   if(error) {
+        throw error
+      }
       
-      set({ featuredProducts: data as unknown as Product[], isLoading: false })
+      set({ featuredProducts: data || [], isLoading: false })
+      return data || []
     } catch (error: any) {
-      console.error('Error fetching featured products:', error)
-      set({ isLoading: false, error: error.message })
+      set({ error: error.message, isLoading: false })
+      return []
+
     }
   },
   
@@ -133,6 +182,7 @@ export const useProductStore = create<ProductState>((set) => ({
       
       const { data, error } = await supabase
         .from('categories')
+
         .select(`
           *,
           product_count:products(count)
@@ -155,6 +205,22 @@ export const useProductStore = create<ProductState>((set) => ({
   },
   
   searchProducts: async (query: string) => {
+        .select('*')
+        .order('name', { ascending: true })
+      
+      if (error) {
+        throw error
+      }
+      
+      set({ categories: data || [], isLoading: false })
+      return data || []
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false })
+      return []
+    }
+  },
+  
+  fetchProductById: async (id) => {
     try {
       set({ isLoading: true, error: null })
       const supabase = createClient()
@@ -163,6 +229,34 @@ export const useProductStore = create<ProductState>((set) => ({
         .from('products')
         .select(`
           *,
+          category:categories(name)
+        `)
+        .eq('id', id)
+        .single()
+      
+      if (error) {
+        throw error
+      }
+      
+      set({ isLoading: false })
+      return data
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false })
+      return null
+    }
+  },
+  
+  searchProducts: async (query) => {
+
+    try {
+      set({ isLoading: true, error: null })
+      const supabase = createClient()
+      
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+
           category:categories(id, name)
         `)
         .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
@@ -174,6 +268,13 @@ export const useProductStore = create<ProductState>((set) => ({
     } catch (error: any) {
       console.error('Error searching products:', error)
       set({ isLoading: false, error: error.message })
+
+      set({ isLoading: false })
+      return data || []
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false })
+      return []
+
     }
   }
 }))

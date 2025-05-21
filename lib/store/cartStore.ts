@@ -15,6 +15,7 @@ interface CartItem {
       name: string
     }
   }
+
 }
 
 interface CartState {
@@ -32,6 +33,7 @@ interface CartState {
   getCartTotal: () => number
   getItemCount: () => number
   syncWithSupabase: (userId: string) => Promise<void>
+  checkout: (shippingAddress: string, paymentMethod: string) => Promise<{ success: boolean, orderId?: string, error?: string }>
 }
 
 export const useCartStore = create<CartState>()(
@@ -68,28 +70,50 @@ export const useCartStore = create<CartState>()(
               }
             }
           }
-          
-          set({ items: [...items, newItem] })
+        
+          set({
+            items: [
+              ...items, 
+              {
+                id: crypto.randomUUID(),
+                product_id: product.id,
+                quantity,
+                price: product.price,
+                name: product.name,
+                image_url: product.image_url
+              }
+            ]
+          })
         }
       },
       
       removeFromCart: (productId) => {
         const { items } = get()
-        set({ items: items.filter(item => item.product_id !== productId) })
+     
+        set({
+          items: items.filter(item => item.product_id !== productId)
+        })
+
       },
       
       updateQuantity: (productId, quantity) => {
         const { items } = get()
         
         if (quantity <= 0) {
-          set({ items: items.filter(item => item.product_id !== productId) })
+
+          set({
+            items: items.filter(item => item.product_id !== productId)
+          })
+
           return
         }
         
         set({
           items: items.map(item => 
             item.product_id === productId 
-              ? { ...item, quantity }
+
+              ? { ...item, quantity } 
+
               : item
           )
         })
@@ -101,9 +125,9 @@ export const useCartStore = create<CartState>()(
       
       getCartTotal: () => {
         const { items } = get()
-        return items.reduce((total, item) => {
-          return total + (item.product.price * item.quantity)
-        }, 0)
+
+        return items.reduce((total, item) => total + (item.price * item.quantity), 0)
+
       },
       
       getItemCount: () => {
@@ -111,50 +135,84 @@ export const useCartStore = create<CartState>()(
         return items.reduce((count, item) => count + item.quantity, 0)
       },
       
-      syncWithSupabase: async (userId) => {
+
+      checkout: async (shippingAddress, paymentMethod) => {
+        const { items, clearCart, getCartTotal } = get()
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          return { 
+            success: false, 
+            error: 'You must be logged in to checkout' 
+          }
+        }
+        
+        if (items.length === 0) {
+          return { 
+            success: false, 
+            error: 'Your cart is empty' 
+          }
+        }
+        
         try {
           set({ isLoading: true, error: null })
-          const supabase = createClient()
-          const { items } = get()
           
-          // Get cart items from Supabase
-          const { data, error } = await supabase
-            .from('cart_items')
-            .select(`
-              *,
-              product:products(
-                id, name, price, image_url,
-                category:categories(name)
-              )
-            `)
-            .eq('user_id', userId)
+          // Create order
+          const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .insert({
+              user_id: user.id,
+              status: 'pending',
+              total_amount: getCartTotal(),
+              shipping_address: shippingAddress,
+              payment_status: 'pending',
+              payment_method: paymentMethod
+            })
+            .select('id')
+            .single()
           
-          if (error) throw error
-          
-          // If there are items in local storage but not in Supabase, add them
-          if (items.length > 0 && (!data || data.length === 0)) {
-            const cartItems = items.map(item => ({
-              user_id: userId,
-              product_id: item.product_id,
-              quantity: item.quantity
-            }))
-            
-            await supabase.from('cart_items').insert(cartItems)
-          } 
-          // If there are items in Supabase, use those
-          else if (data && data.length > 0) {
-            set({ items: data as unknown as CartItem[] })
+          if (orderError) {
+            throw orderError
           }
           
-          set({ isLoading: false })
+          // Create order items
+          const orderItems = items.map(item => ({
+            order_id: order.id,
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price
+          }))
+          
+          const { error: itemsError } = await supabase
+            .from('order_items')
+            .insert(orderItems)
+          
+          if (itemsError) {
+            throw itemsError
+          }
+          
+          // Clear cart after successful checkout
+          clearCart()
+          
+          return { 
+            success: true, 
+            orderId: order.id 
+          }
         } catch (error: any) {
-          console.error('Error syncing cart with Supabase:', error)
-          set({ isLoading: false, error: error.message })
+          console.error('Checkout error:', error)
+          set({ error: error.message })
+          return { 
+            success: false, 
+            error: error.message 
+          }
+        } finally {
+          set({ isLoading: false })
         }
       }
     }),
     {
-      name: 'cart-storage',
+      name: 'cart-storage'
     }
   )
 )

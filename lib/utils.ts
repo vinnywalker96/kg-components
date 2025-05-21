@@ -1,28 +1,8 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
-}
-
-export function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(date)
-}
-
-export function formatDateTime(dateString: string): string {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  }).format(date)
 }
 
 export function formatCurrency(amount: number): string {
@@ -32,16 +12,20 @@ export function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
+export function formatDate(date: string | Date): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(date))
+}
+
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text
   return text.slice(0, maxLength) + '...'
 }
 
 export function generateOrderId(): string {
-  return Math.random().toString(36).substring(2, 10).toUpperCase()
-}
-
-export function calculateDiscountedPrice(price: number, discountPercentage: number): number {
-  return price - (price * (discountPercentage / 100))
+  return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 }
 
