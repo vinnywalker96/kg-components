@@ -6,11 +6,15 @@ import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useAuthStore } from '@/lib/store/authStore'
+import { useCartStore } from '@/lib/store/cartStore'
 import { ShoppingCart, Menu, X, User, LogOut } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
-  const { supabase, session } = useSupabase()
+  const { supabase } = useSupabase()
+  const { user } = useAuthStore()
+  const { getItemCount } = useCartStore()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [cartItemCount, setCartItemCount] = useState(0)
@@ -22,53 +26,15 @@ export function Navbar() {
   }, [pathname])
   
   useEffect(() => {
-    if (!session) return
-    
-    // Get cart item count
-    const fetchCartCount = async () => {
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('quantity')
-        .eq('user_id', session.user.id)
-      
-      if (error) {
-        console.error('Error fetching cart count:', error)
-        return
-      }
-      
-      const count = data.reduce((sum, item) => sum + item.quantity, 0)
-      setCartItemCount(count)
-    }
-    
-    fetchCartCount()
-    
-    // Subscribe to changes
-    const channel = supabase
-      .channel('cart_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cart_items',
-          filter: `user_id=eq.${session.user.id}`,
-        },
-        () => {
-          fetchCartCount()
-        }
-      )
-      .subscribe()
-    
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [supabase, session])
+    // Update cart count from store
+    setCartItemCount(getItemCount())
+  }, [getItemCount])
   
   const handleSignOut = async () => {
     await supabase.auth.signOut()
   }
   
-  const isAdmin = session?.user?.user_metadata?.is_admin
+  const isAdmin = user?.role === 'admin'
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,9 +55,9 @@ export function Navbar() {
                 Home
               </Link>
               <Link
-                href="/account"
+                href="/shop"
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === '/account' ? 'text-foreground' : 'text-muted-foreground'
+                  pathname === '/shop' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
                 Shop
@@ -118,7 +84,7 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             
-            {session ? (
+            {user ? (
               <>
                 <Link href="/cart">
                   <Button variant="ghost" size="icon" className="relative">
@@ -144,7 +110,7 @@ export function Navbar() {
                     <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg border overflow-hidden">
                       <div className="px-4 py-2 border-b">
                         <p className="text-sm font-medium truncate">
-                          {session.user.email}
+                          {user.email}
                         </p>
                       </div>
                       <div className="py-1">
@@ -213,7 +179,7 @@ export function Navbar() {
               Home
             </Link>
             <Link
-              href="/account"
+              href="/shop"
               className="block py-2 text-base font-medium"
             >
               Shop

@@ -237,7 +237,7 @@ export function AuthForm({ redirectUrl }: AuthFormProps) {
         <div className="text-sm text-center w-full">
           {view === 'sign-in' ? (
             <div>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <button
                 type="button"
                 className="text-primary hover:underline"
