@@ -10,8 +10,9 @@ const Breadcrumb = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <nav
     ref={ref}
+    aria-label="breadcrumb"
     className={cn(
-      "flex flex-wrap items-center text-sm text-muted-foreground",
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground",
       className
     )}
     {...props}
@@ -26,7 +27,7 @@ const BreadcrumbList = React.forwardRef<
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center gap-1.5 break-words sm:gap-2.5",
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground",
       className
     )}
     {...props}
@@ -64,42 +65,61 @@ const BreadcrumbLink = React.forwardRef<
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
-const BreadcrumbSeparator = React.forwardRef<
+const BreadcrumbPage = React.forwardRef<
   HTMLSpanElement,
   React.HTMLAttributes<HTMLSpanElement>
 >(({ className, ...props }, ref) => (
   <span
     ref={ref}
-    className={cn("text-muted-foreground", className)}
+    role="link"
+    aria-disabled="true"
+    aria-current="page"
+    className={cn("font-normal text-foreground", className)}
+    {...props}
+  />
+))
+BreadcrumbPage.displayName = "BreadcrumbPage"
+
+const BreadcrumbSeparator = ({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span
+    role="presentation"
+    aria-hidden="true"
+    className={cn("[&>svg]:size-3.5", className)}
     {...props}
   >
-    <ChevronRight className="h-4 w-4" />
+    {children ?? <ChevronRight />}
   </span>
-))
+)
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
 
-const BreadcrumbEllipsis = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ className, ...props }, ref) => (
+const BreadcrumbEllipsis = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement>) => (
   <span
-    ref={ref}
+    role="presentation"
+    aria-hidden="true"
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}
   >
-    <span className="h-1 w-1 rounded-full bg-muted-foreground" />
-    <span className="mx-0.5 h-1 w-1 rounded-full bg-muted-foreground" />
-    <span className="h-1 w-1 rounded-full bg-muted-foreground" />
+    <span className="flex h-1 w-1 rounded-full bg-muted-foreground" />
+    <span className="mx-0.5 flex h-1 w-1 rounded-full bg-muted-foreground" />
+    <span className="flex h-1 w-1 rounded-full bg-muted-foreground" />
     <span className="sr-only">More</span>
   </span>
-))
-BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
+)
+BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
 
 export {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 }
