@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useAuthStore } from '@/lib/store/authStore'
+import { useCartStore } from '@/lib/store/cartStore'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart, Check } from 'lucide-react'
 
@@ -12,7 +14,9 @@ interface ProductDetailsProps {
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
-  const { supabase, session } = useSupabase()
+  const { supabase } = useSupabase()
+  const { user } = useAuthStore()
+  const { addToCart } = useCartStore()
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -25,8 +29,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     }
   }
   
-  const addToCart = async () => {
-    if (!session) {
+  const handleAddToCart = async () => {
+    if (!user) {
       router.push(`/auth?redirect=/product/${product.id}`)
       return
     }
@@ -34,35 +38,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     setLoading(true)
     
     try {
-      // Check if product already in cart
-      const { data: existingItem } = await supabase
-        .from('cart_items')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('product_id', product.id)
-        .single()
-      
-      if (existingItem) {
-        // Update quantity
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity: existingItem.quantity + quantity })
-          .eq('id', existingItem.id)
-        
-        if (error) throw error
-      } else {
-        // Add new item
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: session.user.id,
-            product_id: product.id,
-            quantity,
-          })
-        
-        if (error) throw error
-      }
-      
+      addToCart(product, quantity)
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
     } catch (error) {
@@ -130,7 +106,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       <div className="flex items-center space-x-4">
         <Button
           className="flex-1"
-          onClick={addToCart}
+          onClick={handleAddToCart}
           disabled={loading || added}
         >
           {added ? (
@@ -152,7 +128,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           <div>
             <div className="text-sm font-medium mb-1">Availability</div>
             <div className="text-sm text-muted-foreground">
-              {product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
+              {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
             </div>
           </div>
           <div>
