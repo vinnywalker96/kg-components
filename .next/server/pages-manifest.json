@@ -1,18 +1,5 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
-  "/Cart": "pages/Cart.js",
-  "/About": "pages/About.js",
-  "/Account": "pages/Account.js",
-  "/Contact": "pages/Contact.js",
-  "/NotFound": "pages/NotFound.js",
-  "/Index": "pages/Index.js",
-  "/Auth": "pages/Auth.js",
-  "/Admin": "pages/Admin.js",
-  "/Privacy": "pages/Privacy.js",
-  "/Home": "pages/Home.js",
-  "/ProductDetail": "pages/ProductDetail.js",
-  "/Orders": "pages/Orders.js",
-  "/Shop": "pages/Shop.js",
   "/_document": "pages/_document.js"
 }

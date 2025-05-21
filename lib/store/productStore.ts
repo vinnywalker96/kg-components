@@ -1,347 +1,236 @@
+import { create } from 'zustand';
+import { createClient } from '@/lib/supabase/client';
+import { toast } from '@/lib/hooks/use-toast';
 
-import { create } from "zustand";
-import { supabase } from "@/integrations/supabase/client";
-import { Category, Product, ProductWithCategory } from "@/types";
-import { toast } from "@/hooks/use-toast";
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  image_url?: string;
+  category_id?: string;
+  stock: number;
+  sku?: string;
+  manufacturer?: string;
+  part_number?: string;
+  featured: boolean;
+  external_url?: string;
+  created_at: string;
+  updated_at: string;
+  category?: {
+    id: string;
+    name: string;
+  };
+}
+
+interface ProductFilters {
+  category_id?: string;
+  price_min?: number;
+  price_max?: number;
+  manufacturer?: string;
+  search?: string;
+  featured?: boolean;
+  sort_by?: 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'newest';
+}
 
 interface ProductState {
-  products: ProductWithCategory[];
-  categories: Category[];
-  selectedCategory: string | null;
+  products: Product[];
+  featuredProducts: Product[];
+  categories: { id: string; name: string; count: number }[];
   isLoading: boolean;
-  fetchProducts: (categoryId?: string) => Promise<void>;
+  error: string | null;
+  filters: ProductFilters;
+  
+  // Actions
+  fetchProducts: (filters?: ProductFilters) => Promise<void>;
+  fetchFeaturedProducts: () => Promise<void>;
   fetchCategories: () => Promise<void>;
-  getProductById: (id: string) => ProductWithCategory | undefined;
-  setSelectedCategory: (categoryId: string | null) => void;
-  searchProducts: (query: string) => Promise<void>;
-  importDemoProducts: () => Promise<void>;
+  fetchProductById: (id: string) => Promise<Product | null>;
+  setFilters: (filters: Partial<ProductFilters>) => void;
+  clearFilters: () => void;
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
+  featuredProducts: [],
   categories: [],
-  selectedCategory: null,
   isLoading: false,
-
-  fetchProducts: async (categoryId) => {
-    set({ isLoading: true });
-    try {
-      let query = supabase
-        .from("products")
-        .select(`
-          *,
-          category:categories(*)
-        `);
-
-      if (categoryId) {
-        query = query.eq("category_id", categoryId);
-      }
-
-      const { data, error } = await query.order("name");
-
-      if (error) {
-        console.error("Error fetching products:", error);
-        return;
-      }
-
-      set({ products: data || [] });
-    } catch (error) {
-      console.error("Product fetch error:", error);
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  fetchCategories: async () => {
-    try {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-
-      if (error) {
-        console.error("Error fetching categories:", error);
-        return;
-      }
-
-      set({ categories: data || [] });
-    } catch (error) {
-      console.error("Categories fetch error:", error);
-    }
-  },
-
-  getProductById: (id) => {
-    return get().products.find(product => product.id === id);
-  },
-
-  setSelectedCategory: (categoryId) => {
-    set({ selectedCategory: categoryId });
-    get().fetchProducts(categoryId || undefined);
-  },
-
-  searchProducts: async (query) => {
-    if (!query) {
-      return get().fetchProducts(get().selectedCategory || undefined);
-    }
-
-    set({ isLoading: true });
-    try {
-      let dbQuery = supabase
-        .from("products")
-        .select(`
-          *,
-          category:categories(*)
-        `)
-        .ilike("name", `%${query}%`);
-
-      if (get().selectedCategory) {
-        dbQuery = dbQuery.eq("category_id", get().selectedCategory);
-      }
-
-      const { data, error } = await dbQuery.order("name");
-
-      if (error) {
-        console.error("Error searching products:", error);
-        return;
-      }
-
-      set({ products: data || [] });
-    } catch (error) {
-      console.error("Product search error:", error);
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  importDemoProducts: async () => {
-    set({ isLoading: true });
+  error: null,
+  filters: {},
+  
+  fetchProducts: async (filters) => {
+    set({ isLoading: true, error: null });
     
     try {
-      // First, check if we already have products
-      const { count, error: countError } = await supabase
+      const supabase = createClient();
+      const currentFilters = filters || get().filters;
+      
+      let query = supabase
         .from('products')
-        .select('*', { count: 'exact', head: true });
-        
-      if (countError) {
-        throw new Error(`Error checking products: ${countError.message}`);
+        .select(`
+          *,
+          category:categories(id, name)
+        `);
+      
+      // Apply filters
+      if (currentFilters.category_id) {
+        query = query.eq('category_id', currentFilters.category_id);
       }
       
-      if (count && count > 0) {
-        toast({
-          title: "Products already exist",
-          description: "Sample products have already been imported.",
-        });
-        return;
+      if (currentFilters.price_min !== undefined) {
+        query = query.gte('price', currentFilters.price_min);
       }
       
-      // Get existing categories
-      const { data: categories, error: catError } = await supabase
-        .from("categories")
-        .select("*");
-        
-      if (catError) {
-        throw new Error(`Error fetching categories: ${catError.message}`);
+      if (currentFilters.price_max !== undefined) {
+        query = query.lte('price', currentFilters.price_max);
       }
       
-      if (!categories || categories.length === 0) {
-        toast({
-          title: "No categories found",
-          description: "Please create categories before importing products.",
-          variant: "destructive"
-        });
-        return;
+      if (currentFilters.manufacturer) {
+        query = query.eq('manufacturer', currentFilters.manufacturer);
       }
       
-      // Sample products from ManTech by category
-      const demoProducts: Array<{
-        name: string;
-        description: string;
-        price: number;
-        category_id: string;
-        stock_quantity: number;
-        image_url?: string;
-      }> = [];
-      
-      // Tools category products
-      const toolsCategory = categories.find(c => c.name === "Tools");
-      if (toolsCategory) {
-        demoProducts.push(
-          {
-            name: "Weller WE1010NA Digital Soldering Station",
-            description: "70W digital soldering station with LCD display, temperature stability, and sleep mode function.",
-            price: 149.95,
-            category_id: toolsCategory.id,
-            stock_quantity: 15,
-            image_url: "https://mantech.co.za/Product/Image?product=WE1010NA&ss=0"
-          },
-          {
-            name: "Engineer PA-09 Micro Diagonal Cutters",
-            description: "Precision micro diagonal cutters with sharp blades for fine electronics work.",
-            price: 38.50,
-            category_id: toolsCategory.id,
-            stock_quantity: 30
-          },
-          {
-            name: "Pro'sKit PK-2086B Anti-Static Tweezers",
-            description: "Anti-static fine tip tweezers for SMD component handling and repair.",
-            price: 12.99,
-            category_id: toolsCategory.id,
-            stock_quantity: 50
-          }
-        );
+      if (currentFilters.featured) {
+        query = query.eq('featured', true);
       }
       
-      // Test and Measurements category products
-      const testCategory = categories.find(c => c.name === "Test and Measurements");
-      if (testCategory) {
-        demoProducts.push(
-          {
-            name: "Rigol DS1054Z Digital Oscilloscope",
-            description: "50MHz bandwidth, 4 channels, 1GSa/s sample rate digital oscilloscope.",
-            price: 379.00,
-            category_id: testCategory.id,
-            stock_quantity: 8,
-            image_url: "https://mantech.co.za/Product/Image?product=DS1054Z&ss=0"
-          },
-          {
-            name: "Fluke 117 Electricians Multimeter",
-            description: "Digital multimeter with non-contact voltage detection for electrical troubleshooting.",
-            price: 199.95,
-            category_id: testCategory.id,
-            stock_quantity: 12
-          },
-          {
-            name: "Hantek DSO5102P Digital Storage Oscilloscope",
-            description: "100MHz bandwidth, 2 channels, 1GSa/s sample rate digital oscilloscope with USB connectivity.",
-            price: 299.00,
-            category_id: testCategory.id,
-            stock_quantity: 5
-          }
-        );
+      if (currentFilters.search) {
+        query = query.or(`name.ilike.%${currentFilters.search}%,description.ilike.%${currentFilters.search}%`);
       }
       
-      // Power Products category products
-      const powerCategory = categories.find(c => c.name === "Power Products");
-      if (powerCategory) {
-        demoProducts.push(
-          {
-            name: "Meanwell LRS-350-24 Power Supply",
-            description: "24V 14.6A 350W Single Output Switching Power Supply.",
-            price: 45.99,
-            category_id: powerCategory.id,
-            stock_quantity: 25,
-            image_url: "https://mantech.co.za/Product/Image?product=LRS-350-24&ss=0"
-          },
-          {
-            name: "FTDI USB-C to TTL Serial Converter",
-            description: "3.3V/5V USB-C to UART TTL Serial Converter with FT232RL chip.",
-            price: 18.50,
-            category_id: powerCategory.id,
-            stock_quantity: 40
-          },
-          {
-            name: "LM2596 DC-DC Buck Converter",
-            description: "Step-Down Power Module with display, 3A adjustable regulator.",
-            price: 8.99,
-            category_id: powerCategory.id,
-            stock_quantity: 100
-          }
-        );
+      // Apply sorting
+      if (currentFilters.sort_by) {
+        switch (currentFilters.sort_by) {
+          case 'price_asc':
+            query = query.order('price', { ascending: true });
+            break;
+          case 'price_desc':
+            query = query.order('price', { ascending: false });
+            break;
+          case 'name_asc':
+            query = query.order('name', { ascending: true });
+            break;
+          case 'name_desc':
+            query = query.order('name', { ascending: false });
+            break;
+          case 'newest':
+            query = query.order('created_at', { ascending: false });
+            break;
+          default:
+            query = query.order('name', { ascending: true });
+        }
+      } else {
+        query = query.order('name', { ascending: true });
       }
       
-      // Instruments category products
-      const instrumentsCategory = categories.find(c => c.name === "Instruments");
-      if (instrumentsCategory) {
-        demoProducts.push(
-          {
-            name: "JBC CD-2BE Soldering Station",
-            description: "High performance compact soldering station with sleep and hibernation modes.",
-            price: 450.00,
-            category_id: instrumentsCategory.id,
-            stock_quantity: 5,
-            image_url: "https://mantech.co.za/Product/Image?product=CD-2BE&ss=0"
-          },
-          {
-            name: "Hakko FX-888D Digital Soldering Station",
-            description: "Digital display soldering station with temperature control and preset temperatures.",
-            price: 129.95,
-            category_id: instrumentsCategory.id,
-            stock_quantity: 18
-          },
-          {
-            name: "Atten ST-862D Hot Air Rework Station",
-            description: "Hot air rework station with digital display, temperature control, and auto-cooling.",
-            price: 189.00,
-            category_id: instrumentsCategory.id,
-            stock_quantity: 7
-          }
-        );
-      }
+      const { data, error } = await query;
       
-      // Accessories category products
-      const accessoriesCategory = categories.find(c => c.name === "Accessories");
-      if (accessoriesCategory) {
-        demoProducts.push(
-          {
-            name: "Arduino Uno R3 Development Board",
-            description: "ATmega328P microcontroller board with 14 digital I/O pins and 6 analog inputs.",
-            price: 24.95,
-            category_id: accessoriesCategory.id,
-            stock_quantity: 35,
-            image_url: "https://mantech.co.za/Product/Image?product=A000066&ss=0"
-          },
-          {
-            name: "Raspberry Pi 4 Model B 4GB",
-            description: "Single-board computer with 4GB RAM, WiFi, Bluetooth, and dual 4K display support.",
-            price: 59.99,
-            category_id: accessoriesCategory.id,
-            stock_quantity: 20
-          },
-          {
-            name: "ESP32 Development Board",
-            description: "Dual-core microcontroller with WiFi and Bluetooth for IoT applications.",
-            price: 12.50,
-            category_id: accessoriesCategory.id,
-            stock_quantity: 45
-          }
-        );
-      }
-
-      // Insert all demo products
-      if (demoProducts.length === 0) {
-        toast({
-          title: "No products added",
-          description: "Couldn't match categories with sample products",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { error: insertError } = await supabase
-        .from("products")
-        .insert(demoProducts);
-
-      if (insertError) {
-        throw new Error(`Error importing products: ${insertError.message}`);
-      }
-
-      toast({
-        title: "Demo products imported",
-        description: `Successfully imported ${demoProducts.length} products from ManTech.`,
+      if (error) throw error;
+      
+      set({ 
+        products: data as Product[], 
+        isLoading: false,
+        filters: currentFilters,
       });
-
-      // Refresh the products list
-      await get().fetchProducts();
-      
-    } catch (error) {
-      console.error("Import error:", error);
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+      set({ error: error.message, isLoading: false });
       toast({
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "An error occurred during import",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load products. Please try again.',
+        variant: 'destructive',
       });
-    } finally {
-      set({ isLoading: false });
     }
-  }
+  },
+  
+  fetchFeaturedProducts: async () => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const supabase = createClient();
+      
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          category:categories(id, name)
+        `)
+        .eq('featured', true)
+        .limit(8);
+      
+      if (error) throw error;
+      
+      set({ featuredProducts: data as Product[], isLoading: false });
+    } catch (error: any) {
+      console.error('Error fetching featured products:', error);
+      set({ error: error.message, isLoading: false });
+    }
+  },
+  
+  fetchCategories: async () => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const supabase = createClient();
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .select(`
+          id,
+          name,
+          count:products(count)
+        `)
+        .order('name');
+      
+      if (error) throw error;
+      
+      const categoriesWithCount = data.map(category => ({
+        id: category.id,
+        name: category.name,
+        count: category.count[0]?.count || 0,
+      }));
+      
+      set({ categories: categoriesWithCount, isLoading: false });
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+      set({ error: error.message, isLoading: false });
+    }
+  },
+  
+  fetchProductById: async (id) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const supabase = createClient();
+      
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          category:categories(id, name)
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      
+      set({ isLoading: false });
+      return data as Product;
+    } catch (error: any) {
+      console.error('Error fetching product:', error);
+      set({ error: error.message, isLoading: false });
+      return null;
+    }
+  },
+  
+  setFilters: (filters) => {
+    const currentFilters = get().filters;
+    set({ filters: { ...currentFilters, ...filters } });
+    get().fetchProducts({ ...currentFilters, ...filters });
+  },
+  
+  clearFilters: () => {
+    set({ filters: {} });
+    get().fetchProducts({});
+  },
 }));
+
