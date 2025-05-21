@@ -23,11 +23,93 @@ interface Product {
 }
 
 interface ProductGridProps {
-  products: Product[]
+  initialCategory?: string
+  initialSearchQuery?: string
 }
 
-export function ProductGrid({ products }: ProductGridProps) {
-  if (!products || products.length === 0) {
+export function ProductGrid({ initialCategory, initialSearchQuery }: ProductGridProps) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [category, setCategory] = useState(initialCategory || "")
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "")
+
+  useEffect(() => {
+    fetchProducts()
+  }, [category, searchQuery])
+
+  useEffect(() => {
+    setCategory(initialCategory || "")
+  }, [initialCategory])
+
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery || "")
+  }, [initialSearchQuery])
+
+  async function fetchProducts() {
+    try {
+      setLoading(true)
+      
+      let query = supabase
+        .from('products')
+        .select(`
+          *,
+          category:categories(name)
+        `)
+      
+      // Apply category filter
+      if (category) {
+        const { data: categoryData } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('name', category)
+          .single()
+        
+        if (categoryData) {
+          query = query.eq('category_id', categoryData.id)
+        }
+      }
+      
+      // Apply search filter
+      if (searchQuery) {
+        query = query.ilike('name', `%${searchQuery}%`)
+      }
+      
+      const { data, error } = await query
+      
+      if (error) {
+        console.error('Error fetching products:', error)
+        return
+      }
+      
+      setProducts(data as Product[])
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i} className="overflow-hidden">
+            <div className="aspect-square bg-muted">
+              <Skeleton className="h-full w-full" />
+            </div>
+            <CardContent className="p-4">
+              <Skeleton className="h-4 w-2/3 mb-2" />
+              <Skeleton className="h-4 w-1/2 mb-4" />
+              <Skeleton className="h-4 w-1/4 mb-2" />
+              <Skeleton className="h-8 w-full mt-4" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
+  if (products.length === 0) {
     return (
       <div className="text-center py-12">
         <h3 className="text-lg font-medium mb-2">No products found</h3>

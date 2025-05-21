@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/integrations/supabase/client"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 
 interface Category {
@@ -13,22 +14,48 @@ interface Category {
   name: string
 }
 
-interface ProductFiltersProps {
-  categories: Category[]
+interface ShopFiltersProps {
+  initialCategory?: string
 }
 
-export function ProductFilters({ categories }: ProductFiltersProps) {
+export function ShopFilters({ initialCategory }: ShopFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    searchParams.get("category") || ""
-  )
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    parseInt(searchParams.get("min_price") || "0"),
-    parseInt(searchParams.get("max_price") || "1000")
-  ])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || "")
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  useEffect(() => {
+    setSelectedCategory(initialCategory || "")
+  }, [initialCategory])
+
+  async function fetchCategories() {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true })
+      
+      if (error) {
+        console.error('Error fetching categories:', error)
+        return
+      }
+      
+      setCategories(data as Category[])
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   function handleCategoryChange(category: string) {
     if (selectedCategory === category) {
@@ -72,21 +99,25 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
         <div className="space-y-4">
           <h3 className="font-medium">Categories</h3>
           <div className="space-y-2">
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`category-${category.id}`} 
-                  checked={selectedCategory === category.name}
-                  onCheckedChange={() => handleCategoryChange(category.name)}
-                />
-                <Label 
-                  htmlFor={`category-${category.id}`}
-                  className="text-sm cursor-pointer"
-                >
-                  {category.name}
-                </Label>
-              </div>
-            ))}
+            {loading ? (
+              <div className="text-sm text-muted-foreground">Loading...</div>
+            ) : (
+              categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`category-${category.id}`} 
+                    checked={selectedCategory === category.name}
+                    onCheckedChange={() => handleCategoryChange(category.name)}
+                  />
+                  <Label 
+                    htmlFor={`category-${category.id}`}
+                    className="text-sm cursor-pointer"
+                  >
+                    {category.name}
+                  </Label>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
