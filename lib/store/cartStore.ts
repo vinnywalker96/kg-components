@@ -6,9 +6,16 @@ interface CartItem {
   id: string
   product_id: string
   quantity: number
-  price: number
-  name: string
-  image_url: string | null
+  product: {
+    id: string
+    name: string
+    price: number
+    image_url: string | null
+    category: {
+      name: string
+    }
+  }
+
 }
 
 interface CartState {
@@ -21,8 +28,11 @@ interface CartState {
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
+  
+  // Getters
   getCartTotal: () => number
   getItemCount: () => number
+  syncWithSupabase: (userId: string) => Promise<void>
   checkout: (shippingAddress: string, paymentMethod: string) => Promise<{ success: boolean, orderId?: string, error?: string }>
 }
 
@@ -41,11 +51,26 @@ export const useCartStore = create<CartState>()(
           set({
             items: items.map(item => 
               item.product_id === product.id 
-                ? { ...item, quantity: item.quantity + quantity } 
+                ? { ...item, quantity: item.quantity + quantity }
                 : item
             )
           })
         } else {
+          const newItem: CartItem = {
+            id: `temp-${Date.now()}`,
+            product_id: product.id,
+            quantity,
+            product: {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              image_url: product.image_url,
+              category: {
+                name: product.category?.name || 'Uncategorized'
+              }
+            }
+          }
+        
           set({
             items: [
               ...items, 
@@ -64,25 +89,31 @@ export const useCartStore = create<CartState>()(
       
       removeFromCart: (productId) => {
         const { items } = get()
+     
         set({
           items: items.filter(item => item.product_id !== productId)
         })
+
       },
       
       updateQuantity: (productId, quantity) => {
         const { items } = get()
         
         if (quantity <= 0) {
+
           set({
             items: items.filter(item => item.product_id !== productId)
           })
+
           return
         }
         
         set({
           items: items.map(item => 
             item.product_id === productId 
+
               ? { ...item, quantity } 
+
               : item
           )
         })
@@ -94,7 +125,9 @@ export const useCartStore = create<CartState>()(
       
       getCartTotal: () => {
         const { items } = get()
+
         return items.reduce((total, item) => total + (item.price * item.quantity), 0)
+
       },
       
       getItemCount: () => {
@@ -102,6 +135,7 @@ export const useCartStore = create<CartState>()(
         return items.reduce((count, item) => count + item.quantity, 0)
       },
       
+
       checkout: async (shippingAddress, paymentMethod) => {
         const { items, clearCart, getCartTotal } = get()
         const supabase = createClient()

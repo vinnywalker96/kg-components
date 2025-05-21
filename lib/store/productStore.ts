@@ -6,13 +6,35 @@ interface Product {
   name: string
   description: string
   price: number
+  stock: number
   image_url: string | null
   category_id: string
-  stock: number
-  category?: {
-    name: string
-  }
+  sku: string | null
+  created_at: string
+  updated_at: string
+  category: {
+    id: string
+
+ 
 }
+
+
+interface Category {
+  id: string
+  name: string
+  description: string | null
+  image_url: string | null
+  product_count: number
+}
+
+interface ProductFilters {
+  category?: string
+  minPrice?: number
+  maxPrice?: number
+  search?: string
+  sort?: string
+}
+
 
 interface ProductState {
   products: Product[]
@@ -22,12 +44,14 @@ interface ProductState {
   error: string | null
   
   // Actions
-  fetchProducts: (filters?: any) => Promise<Product[]>
-  fetchFeaturedProducts: () => Promise<Product[]>
-  fetchCategories: () => Promise<any[]>
-  fetchProductById: (id: string) => Promise<Product | null>
-  searchProducts: (query: string) => Promise<Product[]>
-}
+
+  fetchProducts: (filters?: ProductFilters) => Promise<void>
+  fetchFeaturedProducts: () => Promise<void>
+  fetchCategories: () => Promise<void>
+  searchProducts: (query: string) => Promise<void>
+
+
+
 
 export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
@@ -45,6 +69,24 @@ export const useProductStore = create<ProductState>((set, get) => ({
         .from('products')
         .select(`
           *,
+
+          category:categories(id, name)
+        `)
+      
+      // Apply filters
+      if (filters.category) {
+        query = query.eq('category_id', filters.category)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        query = query.gte('price', filters.minPrice)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        query = query.lte('price', filters.maxPrice)
+      }
+      
+
           category:categories(name)
         `)
       
@@ -71,20 +113,25 @@ export const useProductStore = create<ProductState>((set, get) => ({
       }
       
       // Apply search filter
+
       if (filters.search) {
         query = query.ilike('name', `%${filters.search}%`)
       }
       
       // Apply sorting
       if (filters.sort) {
+
         const [field, order] = filters.sort.split('_')
         query = query.order(field, { ascending: order === 'asc' })
       } else {
         query = query.order('name', { ascending: true })
+
       }
       
       const { data, error } = await query
       
+
+   
       if (error) {
         throw error
       }
@@ -94,6 +141,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     } catch (error: any) {
       set({ error: error.message, isLoading: false })
       return []
+
     }
   },
   
@@ -106,12 +154,15 @@ export const useProductStore = create<ProductState>((set, get) => ({
         .from('products')
         .select(`
           *,
-          category:categories(name)
+
+          category:categories(id, name)
+
         `)
         .eq('featured', true)
         .limit(6)
       
-      if (error) {
+
+   if(error) {
         throw error
       }
       
@@ -120,6 +171,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     } catch (error: any) {
       set({ error: error.message, isLoading: false })
       return []
+
     }
   },
   
@@ -130,6 +182,29 @@ export const useProductStore = create<ProductState>((set, get) => ({
       
       const { data, error } = await supabase
         .from('categories')
+
+        .select(`
+          *,
+          product_count:products(count)
+        `)
+        .order('name')
+      
+      if (error) throw error
+      
+      // Transform the data to get the count
+      const categories = data.map(category => ({
+        ...category,
+        product_count: category.product_count?.[0]?.count || 0
+      }))
+      
+      set({ categories: categories as unknown as Category[], isLoading: false })
+    } catch (error: any) {
+      console.error('Error fetching categories:', error)
+      set({ isLoading: false, error: error.message })
+    }
+  },
+  
+  searchProducts: async (query: string) => {
         .select('*')
         .order('name', { ascending: true })
       
@@ -172,6 +247,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
   
   searchProducts: async (query) => {
+
     try {
       set({ isLoading: true, error: null })
       const supabase = createClient()
@@ -180,20 +256,25 @@ export const useProductStore = create<ProductState>((set, get) => ({
         .from('products')
         .select(`
           *,
-          category:categories(name)
+
+          category:categories(id, name)
         `)
-        .ilike('name', `%${query}%`)
-        .order('name', { ascending: true })
+        .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
+        .order('name')
       
-      if (error) {
-        throw error
-      }
+      if (error) throw error
       
+      set({ products: data as unknown as Product[], isLoading: false })
+    } catch (error: any) {
+      console.error('Error searching products:', error)
+      set({ isLoading: false, error: error.message })
+
       set({ isLoading: false })
       return data || []
     } catch (error: any) {
       set({ error: error.message, isLoading: false })
       return []
+
     }
   }
 }))
