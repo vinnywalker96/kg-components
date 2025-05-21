@@ -1,51 +1,51 @@
-import { create } from 'zustand'
-import { createClient } from '@/lib/supabase/client'
+import { create } from 'zustand';
+import { createClient } from '@/lib/supabase/client';
 
 interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stock: number
-  image_url: string | null
-  category_id: string
-  sku: string | null
-  created_at: string
-  updated_at: string
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  image_url: string | null;
+  category_id: string;
+  sku: string | null;
+  created_at: string;
+  updated_at: string;
   category: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 interface Category {
-  id: string
-  name: string
-  description: string | null
-  image_url: string | null
-  product_count: number
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  product_count: number;
 }
 
 interface ProductFilters {
-  category?: string
-  minPrice?: number
-  maxPrice?: number
-  search?: string
-  sort?: string
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  search?: string;
+  sort?: string;
 }
 
 interface ProductState {
-  products: Product[]
-  featuredProducts: Product[]
-  categories: Category[]
-  isLoading: boolean
-  error: string | null
+  products: Product[];
+  featuredProducts: Product[];
+  categories: Category[];
+  isLoading: boolean;
+  error: string | null;
   
   // Actions
-  fetchProducts: (filters?: ProductFilters) => Promise<void>
-  fetchFeaturedProducts: () => Promise<void>
-  fetchCategories: () => Promise<void>
-  searchProducts: (query: string) => Promise<void>
+  fetchProducts: (filters?: ProductFilters) => Promise<void>;
+  fetchFeaturedProducts: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
+  searchProducts: (query: string) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -57,56 +57,56 @@ export const useProductStore = create<ProductState>((set) => ({
   
   fetchProducts: async (filters = {}) => {
     try {
-      set({ isLoading: true, error: null })
-      const supabase = createClient()
+      set({ isLoading: true, error: null });
+      const supabase = createClient();
       
       let query = supabase
         .from('products')
         .select(`
           *,
           category:categories(id, name)
-        `)
+        `);
       
       // Apply filters
       if (filters.category) {
-        query = query.eq('category_id', filters.category)
+        query = query.eq('category_id', filters.category);
       }
       
       if (filters.minPrice !== undefined) {
-        query = query.gte('price', filters.minPrice)
+        query = query.gte('price', filters.minPrice);
       }
       
       if (filters.maxPrice !== undefined) {
-        query = query.lte('price', filters.maxPrice)
+        query = query.lte('price', filters.maxPrice);
       }
       
       if (filters.search) {
-        query = query.ilike('name', `%${filters.search}%`)
+        query = query.ilike('name', `%${filters.search}%`);
       }
       
       // Apply sorting
       if (filters.sort) {
-        const [field, direction] = filters.sort.split(':')
-        query = query.order(field, { ascending: direction === 'asc' })
+        const [field, direction] = filters.sort.split(':');
+        query = query.order(field, { ascending: direction === 'asc' });
       } else {
-        query = query.order('created_at', { ascending: false })
+        query = query.order('created_at', { ascending: false });
       }
       
-      const { data, error } = await query
+      const { data, error } = await query;
       
-      if (error) throw error
+      if (error) throw error;
       
-      set({ products: data as unknown as Product[], isLoading: false })
+      set({ products: data as unknown as Product[], isLoading: false });
     } catch (error: any) {
-      console.error('Error fetching products:', error)
-      set({ isLoading: false, error: error.message })
+      console.error('Error fetching products:', error);
+      set({ isLoading: false, error: error.message });
     }
   },
   
   fetchFeaturedProducts: async () => {
     try {
-      set({ isLoading: true, error: null })
-      const supabase = createClient()
+      set({ isLoading: true, error: null });
+      const supabase = createClient();
       
       const { data, error } = await supabase
         .from('products')
@@ -115,21 +115,21 @@ export const useProductStore = create<ProductState>((set) => ({
           category:categories(id, name)
         `)
         .eq('featured', true)
-        .limit(6)
+        .limit(6);
       
-      if (error) throw error
+      if (error) throw error;
       
-      set({ featuredProducts: data as unknown as Product[], isLoading: false })
+      set({ featuredProducts: data as unknown as Product[], isLoading: false });
     } catch (error: any) {
-      console.error('Error fetching featured products:', error)
-      set({ isLoading: false, error: error.message })
+      console.error('Error fetching featured products:', error);
+      set({ isLoading: false, error: error.message });
     }
   },
   
   fetchCategories: async () => {
     try {
-      set({ isLoading: true, error: null })
-      const supabase = createClient()
+      set({ isLoading: true, error: null });
+      const supabase = createClient();
       
       const { data, error } = await supabase
         .from('categories')
@@ -137,27 +137,27 @@ export const useProductStore = create<ProductState>((set) => ({
           *,
           product_count:products(count)
         `)
-        .order('name')
+        .order('name');
       
-      if (error) throw error
+      if (error) throw error;
       
       // Transform the data to get the count
       const categories = data.map(category => ({
         ...category,
         product_count: category.product_count?.[0]?.count || 0
-      }))
+      }));
       
-      set({ categories: categories as unknown as Category[], isLoading: false })
+      set({ categories: categories as unknown as Category[], isLoading: false });
     } catch (error: any) {
-      console.error('Error fetching categories:', error)
-      set({ isLoading: false, error: error.message })
+      console.error('Error fetching categories:', error);
+      set({ isLoading: false, error: error.message });
     }
   },
   
   searchProducts: async (query: string) => {
     try {
-      set({ isLoading: true, error: null })
-      const supabase = createClient()
+      set({ isLoading: true, error: null });
+      const supabase = createClient();
       
       const { data, error } = await supabase
         .from('products')
@@ -166,15 +166,15 @@ export const useProductStore = create<ProductState>((set) => ({
           category:categories(id, name)
         `)
         .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
-        .order('name')
+        .order('created_at', { ascending: false });
       
-      if (error) throw error
+      if (error) throw error;
       
-      set({ products: data as unknown as Product[], isLoading: false })
+      set({ products: data as unknown as Product[], isLoading: false });
     } catch (error: any) {
-      console.error('Error searching products:', error)
-      set({ isLoading: false, error: error.message })
+      console.error('Error searching products:', error);
+      set({ isLoading: false, error: error.message });
     }
-  }
-}))
+  },
+}));
 
