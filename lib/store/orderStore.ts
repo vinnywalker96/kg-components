@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/integrations/supabase/client'
 
 interface OrderItem {
   id: string
@@ -53,7 +53,6 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   fetchUserOrders: async (userId: string) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       const { data, error } = await supabase
         .from('orders')
@@ -71,10 +70,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         throw error
       }
       
-      set({ 
-        orders: data as unknown as Order[], 
-        isLoading: false 
-      })
+      set({ orders: data as Order[], isLoading: false })
     } catch (error: any) {
       console.error('Fetch user orders error:', error)
       set({ isLoading: false, error: error.message })
@@ -84,15 +80,14 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   fetchAllOrders: async () => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
-          user:profiles(
+          user:user_profiles(
             id,
-            name,
+            full_name,
             email
           ),
           items:order_items(
@@ -106,10 +101,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         throw error
       }
       
-      set({ 
-        orders: data as unknown as Order[], 
-        isLoading: false 
-      })
+      set({ orders: data as Order[], isLoading: false })
     } catch (error: any) {
       console.error('Fetch all orders error:', error)
       set({ isLoading: false, error: error.message })
@@ -119,15 +111,14 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   fetchOrderById: async (orderId: string) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
-          user:profiles(
+          user:user_profiles(
             id,
-            name,
+            full_name,
             email
           ),
           items:order_items(
@@ -142,10 +133,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         throw error
       }
       
-      set({ 
-        currentOrder: data as unknown as Order, 
-        isLoading: false 
-      })
+      set({ currentOrder: data as Order, isLoading: false })
     } catch (error: any) {
       console.error('Fetch order by ID error:', error)
       set({ isLoading: false, error: error.message })
@@ -155,7 +143,6 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   updateOrderStatus: async (orderId: string, status: Order['status']) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       const { error } = await supabase
         .from('orders')
@@ -193,12 +180,11 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   confirmPayment: async (orderId: string) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       const { error } = await supabase
         .from('orders')
         .update({ 
-          payment_status: 'paid' as const, 
+          payment_status: 'paid', 
           updated_at: new Date().toISOString() 
         })
         .eq('id', orderId)
@@ -212,12 +198,12 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       
       const updatedOrders = orders.map(order => 
         order.id === orderId 
-          ? { ...order, payment_status: 'paid' as const, updated_at: new Date().toISOString() } 
+          ? { ...order, payment_status: 'paid', updated_at: new Date().toISOString() } 
           : order
       )
       
       const updatedCurrentOrder = currentOrder && currentOrder.id === orderId
-        ? { ...currentOrder, payment_status: 'paid' as const, updated_at: new Date().toISOString() }
+        ? { ...currentOrder, payment_status: 'paid', updated_at: new Date().toISOString() }
         : currentOrder
       
       set({ 
@@ -234,7 +220,6 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   sendInvoice: async (orderId: string) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
       // Call Supabase Edge Function to send invoice
       const { error } = await supabase.functions.invoke('send-invoice', {
