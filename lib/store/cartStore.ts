@@ -12,6 +12,19 @@ interface CartItem {
   image_url: string | null
 }
 
+// Define the type for cart items from Supabase
+type CartItemWithProduct = {
+  id: string
+  product_id: string
+  quantity: number
+  product: {
+    id: string
+    name: string
+    price: number
+    image_url: string | null
+  }
+}
+
 interface CartState {
   items: CartItem[]
   isLoading: boolean
@@ -65,7 +78,7 @@ export const useCartStore = create<CartState>()(
           if (error) throw error
           
           // Transform to our CartItem format
-          const transformedItems = cartItems?.map(item => ({
+          const transformedItems = cartItems?.map((item: CartItemWithProduct) => ({
             id: item.id,
             product_id: item.product_id,
             quantity: item.quantity,
