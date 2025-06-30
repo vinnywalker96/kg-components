@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { createClient } from '@/lib/supabase/client'
+import { Database } from '@/types/supabase'
+import { sendInvoiceEmail } from '@/lib/services/email'
 
 interface OrderItem {
   id: string
@@ -27,6 +29,8 @@ export interface Order {
     full_name: string | null
     email: string | null
   }
+  shipping_cost?: number
+  invoice_sent?: boolean
 }
 
 interface OrderState {
@@ -41,7 +45,7 @@ interface OrderState {
   fetchOrderById: (orderId: string) => Promise<void>
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>
   confirmPayment: (orderId: string) => Promise<void>
-  sendInvoice: (orderId: string) => Promise<void>
+  sendInvoice: (orderId: string, userEmail: string) => Promise<{ success: boolean; error?: string }>
 }
 
 export const useOrderStore = create<OrderState>((set, get) => ({
@@ -184,6 +188,14 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         currentOrder: updatedCurrentOrder,
         isLoading: false 
       })
+      
+      // If order status is updated to 'processing', send invoice email if not already sent
+      if (status === 'processing' && currentOrder && !currentOrder.invoice_sent) {
+        const { user } = currentOrder
+        if (user && user.email) {
+          await get().sendInvoice(orderId, user.email)
+        }
+      }
     } catch (error: any) {
       console.error('Update order status error:', error)
       set({ isLoading: false, error: error.message })
@@ -225,31 +237,54 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         currentOrder: updatedCurrentOrder,
         isLoading: false 
       })
+      
+      // If payment is confirmed, update order status to processing if it's pending
+      if (currentOrder && currentOrder.status === 'pending') {
+        await get().updateOrderStatus(orderId, 'processing')
+      }
     } catch (error: any) {
       console.error('Confirm payment error:', error)
       set({ isLoading: false, error: error.message })
     }
   },
   
-  sendInvoice: async (orderId: string) => {
+  sendInvoice: async (orderId: string, userEmail: string) => {
     try {
       set({ isLoading: true, error: null })
-      const supabase = createClient()
       
-      // Call Supabase Edge Function to send invoice
-      const { error } = await supabase.functions.invoke('send-invoice', {
-        body: { orderId }
-      })
+      const result = await sendInvoiceEmail(orderId, userEmail)
       
-      if (error) {
-        throw error
+      if (!result.success) {
+        throw new Error(result.error)
       }
       
-      set({ isLoading: false })
+      // Update local state to mark invoice as sent
+      const { orders, currentOrder } = get()
+      
+      const updatedOrders = orders.map(order => 
+        order.id === orderId 
+          ? { ...order, invoice_sent: true } 
+          : order
+      )
+      
+      const updatedCurrentOrder = currentOrder && currentOrder.id === orderId
+        ? { ...currentOrder, invoice_sent: true }
+        : currentOrder
+      
+      set({ 
+        orders: updatedOrders, 
+        currentOrder: updatedCurrentOrder,
+        isLoading: false 
+      })
+      
+      return { success: true }
     } catch (error: any) {
       console.error('Send invoice error:', error)
       set({ isLoading: false, error: error.message })
+      return { 
+        success: false, 
+        error: error.message 
+      }
     }
   }
 }))
-
