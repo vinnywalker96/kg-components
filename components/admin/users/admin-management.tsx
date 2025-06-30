@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSupabase } from '@/components/providers/supabase-provider'
@@ -22,7 +22,7 @@ export function AdminManagement() {
   const [addingAdmin, setAddingAdmin] = useState(false)
 
   // Fetch all users
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -41,7 +41,7 @@ export function AdminManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   // Add a new admin
   const addAdmin = async (e: React.FormEvent) => {
@@ -116,7 +116,7 @@ export function AdminManagement() {
   // Load users on component mount
   useEffect(() => {
     fetchUsers()
-  }, [])
+  }, [fetchUsers])
 
   return (
     <div className="space-y-6">

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Session, User } from '@supabase/supabase-js'
+import { Session, User, AuthChangeEvent } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
 
 type SupabaseContext = {
@@ -33,12 +33,14 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
     getSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-      router.refresh()
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+        router.refresh()
+      }
+    )
 
     return () => {
       subscription.unsubscribe()
