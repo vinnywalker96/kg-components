@@ -1,26 +1,42 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
-import type { SupabaseClient } from "@supabase/supabase-js"
-import { Database } from "@/types/supabase"
-import { useRouter } from "next/navigation"
+import { createContext, useContext, useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { Session, User } from '@supabase/supabase-js'
+import { Database } from '@/types/supabase'
 
 type SupabaseContext = {
-  supabase: SupabaseClient<Database>
+  supabase: ReturnType<typeof createClient>
+  session: Session | null
+  user: User | null
+  loading: boolean
+  signOut: () => Promise<void>
 }
 
 const Context = createContext<SupabaseContext | undefined>(undefined)
 
 export function SupabaseProvider({ children }: { children: React.ReactNode }) {
-  const [supabase] = useState(() => createClient())
+  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      // Refresh the page on auth state change to update server data
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    }
+
+    getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
       router.refresh()
     })
 
@@ -29,17 +45,27 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase, router])
 
-  return (
-    <Context.Provider value={{ supabase }}>
-      {children}
-    </Context.Provider>
-  )
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  const value = {
+    supabase,
+    session,
+    user,
+    loading,
+    signOut
+  }
+
+  return <Context.Provider value={value}>{children}</Context.Provider>
 }
 
-export const useSupabase = () => {
+export function useSupabase() {
   const context = useContext(Context)
   if (context === undefined) {
-    throw new Error("useSupabase must be used inside SupabaseProvider")
+    throw new Error('useSupabase must be used inside SupabaseProvider')
   }
   return context
 }
+

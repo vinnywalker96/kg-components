@@ -130,6 +130,28 @@ CREATE TRIGGER update_banking_details_updated_at
 BEFORE UPDATE ON public.banking_details
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- Create a function to handle user creation with master admin
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Check if this is the master admin email
+  IF NEW.email = 'vinnywalker96@gmail.com' THEN
+    INSERT INTO public.profiles (id, name, email, role)
+    VALUES (NEW.id, 'Marlvin Kwenda', NEW.email, 'admin');
+  ELSE
+    INSERT INTO public.profiles (id, name, email, role)
+    VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name', NEW.email, 'user');
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger the function every time a user is created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- Set up Row Level Security (RLS) policies
 
 -- Profiles table policies
@@ -320,19 +342,4 @@ BEFORE INSERT OR UPDATE ON public.banking_details
 FOR EACH ROW
 WHEN (NEW.is_default = TRUE)
 EXECUTE FUNCTION ensure_single_default_banking_detail();
-
--- Create a function to handle user creation
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, name, email, role)
-  VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name', NEW.email, 'user');
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger the function every time a user is created
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
