@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Metadata } from 'next'
+import Link from 'next/link'
+import { CreditCard } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Admin Settings | Admin Dashboard',
@@ -18,6 +20,7 @@ export default function AdminSettingsPage() {
       <Tabs defaultValue="general">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="banking">Banking</TabsTrigger>
           <TabsTrigger value="shipping">Shipping</TabsTrigger>
           <TabsTrigger value="payment">Payment</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -101,6 +104,33 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
         
+        <TabsContent value="banking" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Banking Details</CardTitle>
+              <CardDescription>
+                Manage banking details for customer invoices.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <CreditCard className="h-12 w-12 text-primary/50" />
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-medium">Manage Banking Details</h3>
+                  <p className="text-muted-foreground">
+                    Configure banking details that will be shown on customer invoices.
+                  </p>
+                </div>
+                <Button asChild>
+                  <Link href="/admin/settings/banking">
+                    Manage Banking Details
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
         <TabsContent value="shipping" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
@@ -152,4 +182,3 @@ export default function AdminSettingsPage() {
     </div>
   )
 }
-

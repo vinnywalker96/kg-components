@@ -1,73 +1,130 @@
-# Welcome to your Lovable project
+# KG-Components E-Commerce Platform
 
-## Project info
+A modern e-commerce platform built with Next.js, Tailwind CSS, and Supabase.
 
-**URL**: https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be
+## Features
 
-## How can I edit this code?
+- **User Authentication**: Secure login and registration with Supabase Auth
+- **Product Management**: Browse, search, and filter products
+- **Shopping Cart**: Add products to cart, update quantities, and checkout
+- **Order Management**: View order history and track order status
+- **Admin Dashboard**: Manage products, orders, users, and store settings
+- **Email Notifications**: Automated order confirmations and invoices
+- **Banking Integration**: Configure banking details for invoice payments
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be) and start prompting.
+- Node.js 18+ and npm/yarn/pnpm
+- Supabase account (free tier works for development)
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/kg-components.git
+   cd kg-components
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. Set up environment variables:
+   - Copy `.env.local.example` to `.env.local`
+   - Fill in your Supabase URL and anon key from your Supabase project
+   - Add SMTP details for email functionality
 
-Follow these steps:
+4. Set up the Supabase database:
+   - Create a new Supabase project
+   - Run the SQL from `supabase/schema.sql` in the Supabase SQL editor
+   - Set up Supabase Edge Functions for email functionality
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+5. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Database Schema
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+The application uses the following database tables:
 
-**Edit a file directly in GitHub**
+- `profiles`: User profiles extending Supabase Auth
+- `products`: Product information
+- `categories`: Product categories
+- `cart_items`: Items in user carts
+- `orders`: Order information
+- `order_items`: Items within orders
+- `banking_details`: Banking information for invoices
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Supabase Edge Functions
 
-**Use GitHub Codespaces**
+The application uses Supabase Edge Functions for:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Sending order confirmation emails
+- Sending invoices with banking details
 
-## What technologies are used for this project?
+To deploy the Edge Functions:
 
-This project is built with:
+1. Install Supabase CLI
+2. Navigate to the `supabase/functions` directory
+3. Deploy the functions:
+   ```bash
+   supabase functions deploy send-invoice
+   ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Admin Access
 
-## How can I deploy this project?
+To create an admin user:
 
-Simply open [Lovable](https://lovable.dev/projects/527d08ef-3815-4d06-8b3c-084ea3ac84be) and click on Share -> Publish.
+1. Register a new user through the application
+2. In the Supabase dashboard, navigate to the `profiles` table
+3. Find your user and change the `role` field from `user` to `admin`
+4. Log out and log back in to access admin features
 
-## Can I connect a custom domain to my Lovable project?
+## User Portal
 
-Yes, you can!
+The user portal allows customers to:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Browse and search products
+2. Add products to their cart
+3. Checkout and create orders
+4. View order history and status
+5. Receive email invoices with payment instructions
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Admin Portal
+
+The admin portal allows store administrators to:
+
+1. Manage products and categories
+2. Process and update orders
+3. Manage users
+4. Configure store settings
+5. Set up banking details for invoices
+6. Send invoices to customers
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Supabase](https://supabase.io/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Lucide Icons](https://lucide.dev/)
+

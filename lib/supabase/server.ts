@@ -1,10 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { Database } from '@/types/supabase'
+import { cache } from 'react'
 
-export function createClient() {
+export const createClient = cache(() => {
   const cookieStore = cookies()
   
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -19,7 +21,10 @@ export function createClient() {
           cookieStore.set({ name, value: '', ...options })
         },
       },
+      // Enable cache optimization for server components
+      db: {
+        schema: 'public',
+      },
     }
   )
-}
-
+})
