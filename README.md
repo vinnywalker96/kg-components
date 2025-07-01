@@ -1,130 +1,102 @@
-# KG-Components E-Commerce Platform
+# KG Components
 
-A modern e-commerce platform built with Next.js, Tailwind CSS, and Supabase.
+A Next.js e-commerce application with Supabase integration for authentication, user management, and product catalog.
 
 ## Features
 
-- **User Authentication**: Secure login and registration with Supabase Auth
-- **Product Management**: Browse, search, and filter products
-- **Shopping Cart**: Add products to cart, update quantities, and checkout
-- **Order Management**: View order history and track order status
-- **Admin Dashboard**: Manage products, orders, users, and store settings
-- **Email Notifications**: Automated order confirmations and invoices
-- **Banking Integration**: Configure banking details for invoice payments
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- User authentication with Supabase Auth
+- User portal for managing profile and orders
+- Shopping cart functionality
+- Order management with email notifications
+- Admin dashboard for managing products, categories, orders, and users
+- Role-based access control
+- Banking details management for payment instructions
+
+## Tech Stack
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Supabase (Authentication, Database)
+- shadcn/ui components
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn/pnpm
-- Supabase account (free tier works for development)
+- Node.js 18+ and npm
+- Supabase account
+
+### Environment Setup
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Database Setup
+
+1. Create a new Supabase project
+2. Run the SQL schema in `db/schema.sql` in the Supabase SQL editor
+3. Enable Email Auth in Supabase Authentication settings
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/kg-components.git
-   cd kg-components
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
+# Run the development server
+npm run dev
+```
 
-3. Set up environment variables:
-   - Copy `.env.local.example` to `.env.local`
-   - Fill in your Supabase URL and anon key from your Supabase project
-   - Add SMTP details for email functionality
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-4. Set up the Supabase database:
-   - Create a new Supabase project
-   - Run the SQL from `supabase/schema.sql` in the Supabase SQL editor
-   - Set up Supabase Edge Functions for email functionality
+## Master Admin Account
 
-5. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
+The system is configured to automatically assign admin privileges to the account with email `vinnywalker96@gmail.com`. This is hardcoded in the database triggers and cannot be demoted through the UI.
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+## Project Structure
 
-## Database Schema
+- `app/` - Next.js app router pages
+- `components/` - React components
+- `lib/` - Utility functions and services
+- `types/` - TypeScript type definitions
+- `db/` - Database schema and migrations
+- `public/` - Static assets
 
-The application uses the following database tables:
+## Authentication Flow
 
-- `profiles`: User profiles extending Supabase Auth
-- `products`: Product information
-- `categories`: Product categories
-- `cart_items`: Items in user carts
-- `orders`: Order information
-- `order_items`: Items within orders
-- `banking_details`: Banking information for invoices
+1. Users sign up or log in through the auth pages
+2. Middleware checks authentication status and redirects accordingly
+3. Protected routes require authentication
+4. Admin routes require admin role
 
-## Supabase Edge Functions
+## Admin Features
 
-The application uses Supabase Edge Functions for:
+- User management (promote/demote admins)
+- Product and category management
+- Order processing and status updates
+- Banking details configuration for payment instructions
 
-- Sending order confirmation emails
-- Sending invoices with banking details
+## User Features
 
-To deploy the Edge Functions:
+- Profile management
+- Shopping cart
+- Order history
+- Product browsing and filtering
 
-1. Install Supabase CLI
-2. Navigate to the `supabase/functions` directory
-3. Deploy the functions:
-   ```bash
-   supabase functions deploy send-invoice
-   ```
+## Deployment
 
-## Admin Access
+The application is ready to be deployed on Vercel or any other Next.js-compatible hosting service.
 
-To create an admin user:
+```bash
+# Build for production
+npm run build
 
-1. Register a new user through the application
-2. In the Supabase dashboard, navigate to the `profiles` table
-3. Find your user and change the `role` field from `user` to `admin`
-4. Log out and log back in to access admin features
-
-## User Portal
-
-The user portal allows customers to:
-
-1. Browse and search products
-2. Add products to their cart
-3. Checkout and create orders
-4. View order history and status
-5. Receive email invoices with payment instructions
-
-## Admin Portal
-
-The admin portal allows store administrators to:
-
-1. Manage products and categories
-2. Process and update orders
-3. Manage users
-4. Configure store settings
-5. Set up banking details for invoices
-6. Send invoices to customers
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Supabase](https://supabase.io/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Lucide Icons](https://lucide.dev/)
+# Start production server
+npm start
+```
 
