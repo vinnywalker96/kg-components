@@ -21,10 +21,7 @@ export const createClient = cache(() => {
           cookieStore.set({ name, value: '', ...options })
         },
       },
-      // Enable cache optimization for server components
-      db: {
-        schema: 'public',
-      },
     }
   )
 })
+

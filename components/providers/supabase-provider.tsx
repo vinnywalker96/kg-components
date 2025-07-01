@@ -1,13 +1,13 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import { Session, User, AuthChangeEvent } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
 
 type SupabaseContext = {
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof createBrowserClient<Database>>
   session: Session | null
   user: User | null
   loading: boolean
@@ -20,7 +20,10 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   const router = useRouter()
 
   useEffect(() => {
@@ -70,4 +73,3 @@ export function useSupabase() {
   }
   return context
 }
-

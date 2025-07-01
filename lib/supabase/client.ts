@@ -1,8 +1,8 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { Database } from '@/types/supabase'
 
 // Create a singleton instance of the Supabase client
-let supabaseInstance: ReturnType<typeof createSupabaseClient<Database>> | null = null
+let supabaseInstance: ReturnType<typeof createBrowserClient<Database>> | null = null
 
 export const createClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -34,19 +34,8 @@ export const createClient = () => {
   }
 
   // Create a new instance if it doesn't exist
-  supabaseInstance = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
-    global: {
-      fetch: fetch.bind(globalThis),
-    },
-    db: {
-      schema: 'public',
-    },
-  })
+  supabaseInstance = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
 
   return supabaseInstance
 }
+
