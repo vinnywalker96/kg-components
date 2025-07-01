@@ -1,35 +1,23 @@
-import { UsersTable } from '@/components/admin/users/users-table'
-import { createClient } from '@/lib/supabase/server'
+import { AdminManagement } from '@/components/admin/users/admin-management'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Manage Users | Admin Dashboard',
-  description: 'View and manage user accounts.',
+  title: 'User Management | Admin Dashboard',
+  description: 'Manage users and admin privileges',
 }
 
-export default async function AdminUsersPage() {
-  const supabase = createClient()
-  
-  // Get users with order count
-  const { data: users } = await supabase
-    .from('user_profiles')
-    .select(`
-      *,
-      orders:orders(count)
-    `)
-    .order('created_at', { ascending: false })
-  
-  // Transform data to include order count
-  const usersWithCount = users?.map(user => ({
-    ...user,
-    order_count: user.orders.length
-  })) || []
-  
+export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Users</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">User Management</h1>
+      </div>
       
-      <UsersTable users={usersWithCount} />
+      <p className="text-muted-foreground">
+        Manage users and admin privileges. The master admin account (vinnywalker96@gmail.com) cannot have its privileges revoked.
+      </p>
+      
+      <AdminManagement />
     </div>
   )
 }

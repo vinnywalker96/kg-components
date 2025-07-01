@@ -16,7 +16,7 @@ export interface Database {
           email: string | null
           phone: string | null
           address: string | null
-          role: 'user' | 'admin'
+          role: string
           created_at: string
           updated_at: string
         }
@@ -26,7 +26,7 @@ export interface Database {
           email?: string | null
           phone?: string | null
           address?: string | null
-          role?: 'user' | 'admin'
+          role?: string
           created_at?: string
           updated_at?: string
         }
@@ -36,7 +36,7 @@ export interface Database {
           email?: string | null
           phone?: string | null
           address?: string | null
-          role?: 'user' | 'admin'
+          role?: string
           created_at?: string
           updated_at?: string
         }
@@ -132,11 +132,11 @@ export interface Database {
         Row: {
           id: string
           user_id: string | null
-          status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+          status: string
           total_amount: number
           shipping_cost: number | null
           shipping_address: string | null
-          payment_status: 'pending' | 'paid' | 'failed'
+          payment_status: string
           payment_method: string | null
           invoice_sent: boolean
           notes: string | null
@@ -146,11 +146,11 @@ export interface Database {
         Insert: {
           id?: string
           user_id?: string | null
-          status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+          status?: string
           total_amount: number
           shipping_cost?: number | null
           shipping_address?: string | null
-          payment_status?: 'pending' | 'paid' | 'failed'
+          payment_status?: string
           payment_method?: string | null
           invoice_sent?: boolean
           notes?: string | null
@@ -160,11 +160,11 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string | null
-          status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+          status?: string
           total_amount?: number
           shipping_cost?: number | null
           shipping_address?: string | null
-          payment_status?: 'pending' | 'paid' | 'failed'
+          payment_status?: string
           payment_method?: string | null
           invoice_sent?: boolean
           notes?: string | null
@@ -241,6 +241,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }

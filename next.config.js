@@ -1,20 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  typescript: {
-    // Exclude Supabase Edge Functions from TypeScript checking
-    ignoreBuildErrors: true,
+  images: {
+    domains: ['images.unsplash.com', 'plus.unsplash.com'],
   },
-  eslint: {
-    // Exclude Supabase Edge Functions from ESLint checking
-    ignoreDuringBuilds: true,
-  },
-  webpack: (config) => {
-    // Exclude Supabase Edge Functions from webpack build
-    config.module.rules.push({
-      test: /supabase\/functions\/.+\.ts$/,
-      loader: 'ignore-loader',
-    });
+  // Exclude Supabase Edge Functions from the build
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        '@supabase/supabase-js': 'commonjs @supabase/supabase-js',
+      });
+    }
     return config;
   },
 }
