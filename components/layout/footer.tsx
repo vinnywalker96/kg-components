@@ -1,7 +1,11 @@
+'use client'
+
 import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const { t } = useLanguage()
   
   return (
     <footer className="border-t bg-muted/40">
@@ -10,12 +14,12 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">KG-Components</h3>
             <p className="text-muted-foreground mb-4">
-              Quality electronic components for hobbyists and professionals.
+              {t('shopDescription')}
             </p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Shop</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('shop')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link 
@@ -61,14 +65,14 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('about')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link 
                   href="/about" 
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  About Us
+                  {t('about')}
                 </Link>
               </li>
               <li>
@@ -76,7 +80,7 @@ export function Footer() {
                   href="/contact" 
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Contact
+                  {t('contact')}
                 </Link>
               </li>
               <li>
@@ -99,7 +103,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('contact')}</h3>
             <address className="not-italic text-muted-foreground">
               <p>123 Component Street</p>
               <p>Electronics City, CA 90210</p>

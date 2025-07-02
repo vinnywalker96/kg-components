@@ -9,12 +9,15 @@ import { useSupabase } from '@/components/providers/supabase-provider'
 import { useAuthStore } from '@/lib/store/authStore'
 import { useCartStore } from '@/lib/store/cartStore'
 import { ShoppingCart, Menu, X, User, LogOut } from 'lucide-react'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 export function Navbar() {
   const pathname = usePathname()
   const { supabase } = useSupabase()
   const { user } = useAuthStore()
   const { getItemCount } = useCartStore()
+  const { t } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [cartItemCount, setCartItemCount] = useState(0)
@@ -52,7 +55,7 @@ export function Navbar() {
                   pathname === '/' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
-                Home
+                {t('home')}
               </Link>
               <Link
                 href="/shop"
@@ -60,7 +63,7 @@ export function Navbar() {
                   pathname === '/shop' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
-                Shop
+                {t('shop')}
               </Link>
               <Link
                 href="/about"
@@ -68,7 +71,7 @@ export function Navbar() {
                   pathname === '/about' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
-                About
+                {t('about')}
               </Link>
               <Link
                 href="/contact"
@@ -76,12 +79,13 @@ export function Navbar() {
                   pathname === '/contact' ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
-                Contact
+                {t('contact')}
               </Link>
             </nav>
           </div>
           
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             <ThemeToggle />
             
             {user ? (
@@ -118,20 +122,20 @@ export function Navbar() {
                           href="/account"
                           className="block px-4 py-2 text-sm hover:bg-muted"
                         >
-                          My Account
+                          {t('account')}
                         </Link>
                         <Link
                           href="/orders"
                           className="block px-4 py-2 text-sm hover:bg-muted"
                         >
-                          My Orders
+                          {t('orders')}
                         </Link>
                         {isAdmin && (
                           <Link
                             href="/admin"
                             className="block px-4 py-2 text-sm hover:bg-muted"
                           >
-                            Admin Dashboard
+                            {t('adminDashboard')}
                           </Link>
                         )}
                         <button
@@ -139,7 +143,7 @@ export function Navbar() {
                           className="w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center"
                         >
                           <LogOut className="mr-2 h-4 w-4" />
-                          Sign Out
+                          {t('signOut')}
                         </button>
                       </div>
                     </div>
@@ -148,7 +152,7 @@ export function Navbar() {
               </>
             ) : (
               <Button asChild variant="default" size="sm">
-                <Link href="/auth">Sign In</Link>
+                <Link href="/auth">{t('login')}</Link>
               </Button>
             )}
             
@@ -176,25 +180,25 @@ export function Navbar() {
               href="/"
               className="block py-2 text-base font-medium"
             >
-              Home
+              {t('home')}
             </Link>
             <Link
               href="/shop"
               className="block py-2 text-base font-medium"
             >
-              Shop
+              {t('shop')}
             </Link>
             <Link
               href="/about"
               className="block py-2 text-base font-medium"
             >
-              About
+              {t('about')}
             </Link>
             <Link
               href="/contact"
               className="block py-2 text-base font-medium"
             >
-              Contact
+              {t('contact')}
             </Link>
           </div>
         </div>
@@ -202,4 +206,3 @@ export function Navbar() {
     </header>
   )
 }
-

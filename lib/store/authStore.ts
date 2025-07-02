@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserClient } from '@supabase/ssr'
+import Cookies from 'js-cookie'
 
 interface User {
   id: string
@@ -18,6 +19,19 @@ interface AuthState {
   signup: (email: string, password: string, name: string) => Promise<boolean>
   logout: () => Promise<void>
   checkAuth: () => Promise<boolean>
+}
+
+// Create a Supabase client for the browser
+const createClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing')
+    throw new Error('Supabase environment variables are missing')
+  }
+  
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -48,12 +62,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           .eq('id', data.user.id)
           .single()
         
+        const role = (profileData?.role as 'user' | 'admin') || 'user'
+        
+        // Set role cookie for middleware
+        Cookies.set('user_role', role, { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
         set({
           user: {
             id: data.user.id,
             email: data.user.email!,
             name: profileData?.name || 'User',
-            role: (profileData?.role as 'user' | 'admin') || 'user'
+            role
           },
           isLoading: false
         })
@@ -94,6 +118,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             role: 'user'
           })
         
+        // Set role cookie for middleware
+        Cookies.set('user_role', 'user', { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
         set({
           user: {
             id: data.user.id,
@@ -116,9 +148,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   
   logout: async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    set({ user: null })
+    try {
+      const supabase = createClient()
+      // Remove role cookie
+      Cookies.remove('user_role', { path: '/' })
+      await supabase.auth.signOut()
+      set({ user: null })
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
   },
   
   checkAuth: async () => {
@@ -136,21 +174,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           .eq('id', data.user.id)
           .single()
         
+        const role = (profileData?.role as 'user' | 'admin') || 'user'
+        
+        // Update role cookie
+        Cookies.set('user_role', role, { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
         set({
           user: {
             id: data.user.id,
             email: data.user.email!,
             name: profileData?.name || 'User',
-            role: (profileData?.role as 'user' | 'admin') || 'user'
+            role
           }
         })
         
         return true
       }
       
+      // Clear role cookie if not authenticated
+      Cookies.remove('user_role', { path: '/' })
       set({ user: null })
       return false
     } catch (error) {
+      // Clear role cookie on error
+      Cookies.remove('user_role', { path: '/' })
       set({ user: null })
       return false
     } finally {
@@ -158,4 +210,3 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   }
 }))
-

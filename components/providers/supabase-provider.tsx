@@ -1,13 +1,14 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import { Session, User, AuthChangeEvent } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
+import Cookies from 'js-cookie'
 
 type SupabaseContext = {
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof createBrowserClient<Database>>
   session: Session | null
   user: User | null
   loading: boolean
@@ -20,36 +21,102 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  
+  // Check if Supabase environment variables are set
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  // Create a mock client if environment variables are missing
+  const supabase = !supabaseUrl || !supabaseAnonKey
+    ? createMockClient()
+    : createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  
   const router = useRouter()
+
+  // Function to fetch and set user role
+  const fetchAndSetUserRole = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      
+      if (profile?.role) {
+        // Set role in cookie for middleware to use
+        Cookies.set('user_role', profile.role, { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error)
+    }
+  }
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        // If user is logged in, fetch and set role
+        if (session?.user?.id) {
+          await fetchAndSetUserRole(session.user.id)
+        }
+      } catch (error) {
+        console.error('Error getting session:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event: AuthChangeEvent, session: Session | null) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
-        router.refresh()
-      }
-    )
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event: AuthChangeEvent, session: Session | null) => {
+          setSession(session)
+          setUser(session?.user ?? null)
+          
+          // Handle sign in and user update events
+          if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user?.id) {
+            await fetchAndSetUserRole(session.user.id)
+          }
+          
+          // Handle sign out
+          if (event === 'SIGNED_OUT') {
+            // Clear role cookie
+            Cookies.remove('user_role', { path: '/' })
+          }
+          
+          setLoading(false)
+          router.refresh()
+        }
+      )
 
-    return () => {
-      subscription.unsubscribe()
+      return () => {
+        subscription.unsubscribe()
+      }
+    } catch (error) {
+      console.error('Error setting up auth state change listener:', error)
+      setLoading(false)
+      return () => {}
     }
   }, [supabase, router])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    try {
+      // Clear role cookie
+      Cookies.remove('user_role', { path: '/' })
+      await supabase.auth.signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   const value = {
@@ -63,6 +130,30 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   return <Context.Provider value={value}>{children}</Context.Provider>
 }
 
+// Create a mock Supabase client for development without environment variables
+function createMockClient() {
+  console.warn('Using mock Supabase client - environment variables are missing')
+  return {
+    auth: {
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ 
+        data: { 
+          subscription: { 
+            unsubscribe: () => {} 
+          } 
+        } 
+      }),
+      signOut: () => Promise.resolve({ error: null }),
+    },
+    from: () => ({
+      select: () => ({
+        eq: () => Promise.resolve({ data: [], error: null }),
+        order: () => Promise.resolve({ data: [], error: null }),
+      }),
+    }),
+  } as any
+}
+
 export function useSupabase() {
   const context = useContext(Context)
   if (context === undefined) {
@@ -70,4 +161,3 @@ export function useSupabase() {
   }
   return context
 }
-

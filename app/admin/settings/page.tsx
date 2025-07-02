@@ -1,26 +1,26 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Metadata } from 'next'
 import Link from 'next/link'
-import { CreditCard } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Admin Settings | Admin Dashboard',
-  description: 'Configure store settings and preferences.',
-}
+import { CreditCard, Globe } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 export default function AdminSettingsPage() {
+  const { t } = useLanguage()
+  
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Settings</h1>
+      <h1 className="text-3xl font-bold">{t('settings')}</h1>
       
       <Tabs defaultValue="general">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="banking">Banking</TabsTrigger>
+          <TabsTrigger value="banking">{t('banking')}</TabsTrigger>
+          <TabsTrigger value="language">{t('language')}</TabsTrigger>
           <TabsTrigger value="shipping">Shipping</TabsTrigger>
           <TabsTrigger value="payment">Payment</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
               </div>
               
               <div className="flex justify-end">
-                <Button>Save Changes</Button>
+                <Button>{t('save')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -107,7 +107,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="banking" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Banking Details</CardTitle>
+              <CardTitle>{t('banking')} Details</CardTitle>
               <CardDescription>
                 Manage banking details for customer invoices.
               </CardDescription>
@@ -116,14 +116,41 @@ export default function AdminSettingsPage() {
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
                 <CreditCard className="h-12 w-12 text-primary/50" />
                 <div className="text-center space-y-2">
-                  <h3 className="text-lg font-medium">Manage Banking Details</h3>
+                  <h3 className="text-lg font-medium">Manage {t('banking')} Details</h3>
                   <p className="text-muted-foreground">
                     Configure banking details that will be shown on customer invoices.
                   </p>
                 </div>
                 <Button asChild>
                   <Link href="/admin/settings/banking">
-                    Manage Banking Details
+                    Manage {t('banking')} Details
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="language" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('language')} Settings</CardTitle>
+              <CardDescription>
+                Configure language options for your store.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <Globe className="h-12 w-12 text-primary/50" />
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-medium">Manage {t('language')} Settings</h3>
+                  <p className="text-muted-foreground">
+                    Configure language options and translations for your store.
+                  </p>
+                </div>
+                <Button asChild>
+                  <Link href="/admin/settings/language">
+                    Manage {t('language')} Settings
                   </Link>
                 </Button>
               </div>
