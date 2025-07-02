@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { Navbar } from '@/components/layout/navbar'
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { LanguageProvider } from '@/lib/i18n/language-context'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,6 +37,7 @@ export default function RootLayout({
                   {children}
                 </main>
                 <Footer />
+                <Toaster />
               </div>
             </LanguageProvider>
           </SupabaseProvider>

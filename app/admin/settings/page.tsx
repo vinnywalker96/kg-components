@@ -5,15 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Metadata } from 'next'
 import Link from 'next/link'
 import { CreditCard, Globe } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/language-context'
-
-export const metadata: Metadata = {
-  title: 'Admin Settings | Admin Dashboard',
-  description: 'Configure store settings and preferences.',
-}
 
 export default function AdminSettingsPage() {
   const { t } = useLanguage()
