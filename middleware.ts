@@ -1,6 +1,6 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
@@ -15,17 +15,18 @@ export async function middleware(req: NextRequest) {
     return res
   }
   
-  // Create a Supabase client for auth
+  // Create a Supabase client for auth using the Edge-compatible approach
+  const cookieStore = req.cookies
   const supabase = createServerClient(
     supabaseUrl,
     supabaseAnonKey,
     {
       cookies: {
-        get(name) {
-          return req.cookies.get(name)?.value
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        set(name, value, options) {
-          req.cookies.set({
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({
             name,
             value,
             ...options,
@@ -36,8 +37,8 @@ export async function middleware(req: NextRequest) {
             ...options,
           })
         },
-        remove(name, options) {
-          req.cookies.set({
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({
             name,
             value: '',
             ...options,
@@ -54,9 +55,8 @@ export async function middleware(req: NextRequest) {
   
   try {
     // Check if we have a session
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+    const { data } = await supabase.auth.getSession()
+    const session = data.session
 
     // If no session and trying to access protected routes, redirect to login
     if (!session && (
@@ -68,16 +68,13 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // If accessing admin routes, check if user is admin
+    // For admin routes, we'll use a simpler approach that's Edge-compatible
+    // Instead of querying the database, we'll check for a role cookie
     if (session && req.nextUrl.pathname.startsWith('/admin')) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single()
+      const roleCookie = req.cookies.get('user_role')
       
       // If not admin, redirect to account page
-      if (!profile || profile.role !== 'admin') {
+      if (!roleCookie || roleCookie.value !== 'admin') {
         return NextResponse.redirect(new URL('/account', req.url))
       }
     }
@@ -95,3 +92,4 @@ export const config = {
     '/auth/:path*',
   ],
 }
+

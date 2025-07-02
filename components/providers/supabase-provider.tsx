@@ -5,6 +5,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import { Session, User, AuthChangeEvent } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
+import Cookies from 'js-cookie'
 
 type SupabaseContext = {
   supabase: ReturnType<typeof createBrowserClient<Database>>
@@ -32,12 +33,40 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   
   const router = useRouter()
 
+  // Function to fetch and set user role
+  const fetchAndSetUserRole = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      
+      if (profile?.role) {
+        // Set role in cookie for middleware to use
+        Cookies.set('user_role', profile.role, { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error)
+    }
+  }
+
   useEffect(() => {
     const getSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setSession(session)
         setUser(session?.user ?? null)
+        
+        // If user is logged in, fetch and set role
+        if (session?.user?.id) {
+          await fetchAndSetUserRole(session.user.id)
+        }
       } catch (error) {
         console.error('Error getting session:', error)
       } finally {
@@ -49,9 +78,21 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (_event: AuthChangeEvent, session: Session | null) => {
+        async (event: AuthChangeEvent, session: Session | null) => {
           setSession(session)
           setUser(session?.user ?? null)
+          
+          // Handle sign in and user update events
+          if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user?.id) {
+            await fetchAndSetUserRole(session.user.id)
+          }
+          
+          // Handle sign out
+          if (event === 'SIGNED_OUT') {
+            // Clear role cookie
+            Cookies.remove('user_role', { path: '/' })
+          }
+          
           setLoading(false)
           router.refresh()
         }
@@ -69,6 +110,8 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Clear role cookie
+      Cookies.remove('user_role', { path: '/' })
       await supabase.auth.signOut()
       router.push('/')
     } catch (error) {
