@@ -18,6 +18,63 @@ export type TranslationKey =
   | 'login'
   | 'signup'
   | 'logout'
+  | 'signOut'
+  
+  // Home Page
+  | 'heroTitle'
+  | 'heroSubtitle'
+  | 'shopNow'
+  | 'learnMore'
+  | 'browseByCategory'
+  | 'viewAllCategories'
+  | 'featuredProducts'
+  | 'productImage'
+  | 'featuredProduct'
+  | 'shopAllProducts'
+  | 'whyChooseUs'
+  | 'qualityGuaranteed'
+  | 'qualityGuaranteedDesc'
+  | 'fastShipping'
+  | 'fastShippingDesc'
+  | 'expertSupport'
+  | 'expertSupportDesc'
+  | 'stayUpdated'
+  | 'newsletterDesc'
+  | 'emailPlaceholder'
+  | 'subscribe'
+  
+  // About Page
+  | 'aboutTitle'
+  | 'aboutSubtitle'
+  | 'ourStory'
+  | 'ourStoryPart1'
+  | 'ourStoryPart2'
+  | 'ourMission'
+  | 'ourMissionText'
+  | 'whatSetsUsApart'
+  | 'qualityAssurance'
+  | 'qualityAssuranceText'
+  | 'extensiveSelection'
+  | 'extensiveSelectionText'
+  | 'expertSupportAboutText'
+  | 'fastShippingAboutText'
+  | 'ourTeam'
+  | 'ourTeamPart1'
+  | 'ourTeamPart2'
+  | 'sustainabilityCommitment'
+  | 'sustainabilityPart1'
+  | 'sustainabilityPart2'
+  | 'joinOurCommunity'
+  | 'joinOurCommunityPart1'
+  | 'joinOurCommunityPart2'
+  
+  // Categories
+  | 'tools'
+  | 'accessories'
+  | 'components'
+  | 'powerProducts'
+  | 'testMeasurements'
+  | 'kits'
   
   // Shop
   | 'shopTitle'
@@ -65,7 +122,6 @@ export type TranslationKey =
   | 'address'
   | 'saveChanges'
   | 'accountActions'
-  | 'signOut'
   | 'adminDashboard'
   | 'goToAdmin'
   
@@ -140,6 +196,38 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     login: 'Login',
     signup: 'Sign Up',
     logout: 'Logout',
+    signOut: 'Sign Out',
+    
+    // Home Page
+    heroTitle: 'Quality Electronic Components for Your Projects',
+    heroSubtitle: 'From resistors to microcontrollers, we have everything you need for your next electronic project.',
+    shopNow: 'Shop Now',
+    learnMore: 'Learn More',
+    browseByCategory: 'Browse by Category',
+    viewAllCategories: 'View All Categories',
+    featuredProducts: 'Featured Products',
+    productImage: 'Product Image',
+    featuredProduct: 'Featured Product',
+    shopAllProducts: 'Shop All Products',
+    whyChooseUs: 'Why Choose KG-Components',
+    qualityGuaranteed: 'Quality Guaranteed',
+    qualityGuaranteedDesc: 'All our components are sourced from trusted manufacturers and undergo rigorous quality testing.',
+    fastShipping: 'Fast Shipping',
+    fastShippingDesc: 'We process orders quickly and offer expedited shipping options to get your components when you need them.',
+    expertSupport: 'Expert Support',
+    expertSupportDesc: 'Our team of electronics experts is available to help you choose the right components for your project.',
+    stayUpdated: 'Stay Updated',
+    newsletterDesc: 'Subscribe to our newsletter to receive updates on new products, special offers, and electronics tips.',
+    emailPlaceholder: 'Your email address',
+    subscribe: 'Subscribe',
+    
+    // Categories
+    tools: 'Tools',
+    accessories: 'Accessories',
+    components: 'Components',
+    powerProducts: 'Power Products',
+    testMeasurements: 'Test and Measurements',
+    kits: 'Kits',
     
     // Shop
     shopTitle: 'Shop',
@@ -187,7 +275,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     address: 'Shipping Address',
     saveChanges: 'Save Changes',
     accountActions: 'Account Actions',
-    signOut: 'Sign Out',
     adminDashboard: 'Admin Dashboard',
     goToAdmin: 'Go to Admin',
     
@@ -230,6 +317,31 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     orderItems: 'Order Items',
     noOrders: 'You have no orders',
     
+    // About Page
+    aboutTitle: 'About KG-Components',
+    aboutSubtitle: 'Your trusted source for electronic components and tools',
+    ourStory: 'Our Story',
+    ourStoryPart1: 'KG-Components was founded in 2023 with a simple mission: to provide electronics enthusiasts, makers, and professionals with high-quality components at competitive prices. What started as a small operation has grown into a comprehensive electronic components supplier serving customers worldwide.',
+    ourStoryPart2: 'We understand the frustration of working on a project only to discover you\'re missing a critical component or receiving poor-quality parts that don\'t work as expected. That\'s why we\'ve built our business around reliability, quality, and excellent customer service.',
+    ourMission: 'Our Mission',
+    ourMissionText: 'Our mission is to empower creators and innovators by providing reliable electronic components, tools, and resources. We believe that everyone should have access to the components they need to bring their ideas to life, whether they\'re a hobbyist working on their first Arduino project or a professional engineer developing cutting-edge technology.',
+    whatSetsUsApart: 'What Sets Us Apart',
+    qualityAssurance: 'Quality Assurance',
+    qualityAssuranceText: 'Every component we sell undergoes rigorous quality testing to ensure it meets our high standards. We source directly from reputable manufacturers and authorized distributors to guarantee authenticity.',
+    extensiveSelection: 'Extensive Selection',
+    extensiveSelectionText: 'From resistors and capacitors to microcontrollers and development boards, we offer a comprehensive range of components for all your electronic needs. Our catalog is constantly expanding to include the latest technologies.',
+    expertSupportAboutText: 'Our team consists of electronics enthusiasts and professionals who understand your needs. We\'re always ready to help you find the right components for your project or answer any technical questions.',
+    fastShippingAboutText: 'We know that waiting for components can delay your entire project. That\'s why we process orders quickly and offer expedited shipping options to get your components to you as soon as possible.',
+    ourTeam: 'Our Team',
+    ourTeamPart1: 'Behind KG-Components is a team of passionate electronics enthusiasts, engineers, and customer service professionals dedicated to providing you with the best possible experience.',
+    ourTeamPart2: 'Our team members bring diverse backgrounds and expertise in electronics, from analog circuit design to embedded systems programming. This collective knowledge allows us to better understand and serve the needs of our customers.',
+    sustainabilityCommitment: 'Sustainability Commitment',
+    sustainabilityPart1: 'We\'re committed to reducing our environmental impact. We use eco-friendly packaging materials whenever possible and are continuously working to optimize our operations for sustainability.',
+    sustainabilityPart2: 'Additionally, we offer resources on proper electronic waste disposal and participate in recycling programs for electronic components and devices.',
+    joinOurCommunity: 'Join Our Community',
+    joinOurCommunityPart1: 'KG-Components is more than just a supplier—we\'re a community of makers, creators, and innovators. Follow us on social media to stay updated on new products, technical tips, and inspiring projects from our community.',
+    joinOurCommunityPart2: 'We also regularly publish tutorials, project ideas, and technical articles on our blog to help you make the most of your electronic components.',
+    
     // Misc
     loading: 'Loading...',
     error: 'Error',
@@ -262,6 +374,38 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     login: 'Entrar',
     signup: 'Cadastrar',
     logout: 'Sair',
+    signOut: 'Sair',
+    
+    // Home Page
+    heroTitle: 'Componentes Eletrônicos de Qualidade para Seus Projetos',
+    heroSubtitle: 'De resistores a microcontroladores, temos tudo o que você precisa para seu próximo projeto eletrônico.',
+    shopNow: 'Comprar Agora',
+    learnMore: 'Saiba Mais',
+    browseByCategory: 'Navegar por Categoria',
+    viewAllCategories: 'Ver Todas as Categorias',
+    featuredProducts: 'Produtos em Destaque',
+    productImage: 'Imagem do Produto',
+    featuredProduct: 'Produto em Destaque',
+    shopAllProducts: 'Ver Todos os Produtos',
+    whyChooseUs: 'Por Que Escolher KG-Components',
+    qualityGuaranteed: 'Qualidade Garantida',
+    qualityGuaranteedDesc: 'Todos os nossos componentes são provenientes de fabricantes confiáveis e passam por rigorosos testes de qualidade.',
+    fastShipping: 'Envio Rápido',
+    fastShippingDesc: 'Processamos pedidos rapidamente e oferecemos opções de envio expresso para que você receba seus componentes quando precisar.',
+    expertSupport: 'Suporte Especializado',
+    expertSupportDesc: 'Nossa equipe de especialistas em eletrônica está disponível para ajudá-lo a escolher os componentes certos para o seu projeto.',
+    stayUpdated: 'Mantenha-se Atualizado',
+    newsletterDesc: 'Assine nossa newsletter para receber atualizações sobre novos produtos, ofertas especiais e dicas de eletrônica.',
+    emailPlaceholder: 'Seu endereço de email',
+    subscribe: 'Assinar',
+    
+    // Categories
+    tools: 'Ferramentas',
+    accessories: 'Acessórios',
+    components: 'Componentes',
+    powerProducts: 'Produtos de Energia',
+    testMeasurements: 'Teste e Medição',
+    kits: 'Kits',
     
     // Shop
     shopTitle: 'Loja',
@@ -309,7 +453,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     address: 'Endereço de Entrega',
     saveChanges: 'Salvar Alterações',
     accountActions: 'Ações da Conta',
-    signOut: 'Sair',
     adminDashboard: 'Painel de Administração',
     goToAdmin: 'Ir para Admin',
     
@@ -352,6 +495,31 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     orderItems: 'Itens do Pedido',
     noOrders: 'Você não tem pedidos',
     
+    // About Page
+    aboutTitle: 'Sobre KG-Components',
+    aboutSubtitle: 'Sua fonte confiável de componentes eletrônicos e ferramentas',
+    ourStory: 'Nossa História',
+    ourStoryPart1: 'A KG-Components foi fundada em 2023 com uma missão simples: fornecer a entusiastas de eletrônica, criadores e profissionais componentes de alta qualidade a preços competitivos. O que começou como uma pequena operação cresceu e se tornou um fornecedor abrangente de componentes eletrônicos atendendo clientes em todo o mundo.',
+    ourStoryPart2: 'Entendemos a frustração de trabalhar em um projeto apenas para descobrir que está faltando um componente crítico ou receber peças de baixa qualidade que não funcionam como esperado. É por isso que construímos nosso negócio em torno de confiabilidade, qualidade e excelente atendimento ao cliente.',
+    ourMission: 'Nossa Missão',
+    ourMissionText: 'Nossa missão é capacitar criadores e inovadores fornecendo componentes eletrônicos, ferramentas e recursos confiáveis. Acreditamos que todos devem ter acesso aos componentes necessários para dar vida às suas ideias, seja um hobbyista trabalhando em seu primeiro projeto Arduino ou um engenheiro profissional desenvolvendo tecnologia de ponta.',
+    whatSetsUsApart: 'O Que Nos Diferencia',
+    qualityAssurance: 'Garantia de Qualidade',
+    qualityAssuranceText: 'Cada componente que vendemos passa por rigorosos testes de qualidade para garantir que atenda aos nossos altos padrões. Obtemos produtos diretamente de fabricantes respeitáveis e distribuidores autorizados para garantir a autenticidade.',
+    extensiveSelection: 'Seleção Extensiva',
+    extensiveSelectionText: 'De resistores e capacitores a microcontroladores e placas de desenvolvimento, oferecemos uma gama abrangente de componentes para todas as suas necessidades eletrônicas. Nosso catálogo está em constante expansão para incluir as tecnologias mais recentes.',
+    expertSupportAboutText: 'Nossa equipe é composta por entusiastas de eletrônica e profissionais que entendem suas necessidades. Estamos sempre prontos para ajudá-lo a encontrar os componentes certos para o seu projeto ou responder a quaisquer perguntas técnicas.',
+    fastShippingAboutText: 'Sabemos que esperar por componentes pode atrasar todo o seu projeto. É por isso que processamos pedidos rapidamente e oferecemos opções de envio expresso para que seus componentes cheguem até você o mais rápido possível.',
+    ourTeam: 'Nossa Equipe',
+    ourTeamPart1: 'Por trás da KG-Components está uma equipe de entusiastas apaixonados por eletrônica, engenheiros e profissionais de atendimento ao cliente dedicados a proporcionar a melhor experiência possível.',
+    ourTeamPart2: 'Os membros da nossa equipe trazem experiências e conhecimentos diversos em eletrônica, desde design de circuitos analógicos até programação de sistemas embarcados. Esse conhecimento coletivo nos permite entender e atender melhor às necessidades de nossos clientes.',
+    sustainabilityCommitment: 'Compromisso com a Sustentabilidade',
+    sustainabilityPart1: 'Estamos comprometidos em reduzir nosso impacto ambiental. Usamos materiais de embalagem ecológicos sempre que possível e estamos continuamente trabalhando para otimizar nossas operações para a sustentabilidade.',
+    sustainabilityPart2: 'Além disso, oferecemos recursos sobre o descarte adequado de resíduos eletrônicos e participamos de programas de reciclagem para componentes e dispositivos eletrônicos.',
+    joinOurCommunity: 'Junte-se à Nossa Comunidade',
+    joinOurCommunityPart1: 'A KG-Components é mais do que apenas um fornecedor—somos uma comunidade de criadores, inventores e inovadores. Siga-nos nas redes sociais para se manter atualizado sobre novos produtos, dicas técnicas e projetos inspiradores de nossa comunidade.',
+    joinOurCommunityPart2: 'Também publicamos regularmente tutoriais, ideias de projetos e artigos técnicos em nosso blog para ajudá-lo a aproveitar ao máximo seus componentes eletrônicos.',
+    
     // Misc
     loading: 'Carregando...',
     error: 'Erro',
@@ -366,4 +534,3 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     view: 'Visualizar'
   }
 }
-
