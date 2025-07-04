@@ -72,6 +72,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           sameSite: 'lax'
         })
         
+        // Set auth token cookie for middleware
+        Cookies.set('sb-auth-token', 'authenticated', { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
         set({
           user: {
             id: data.user.id,
@@ -126,6 +134,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           sameSite: 'lax'
         })
         
+        // Set auth token cookie for middleware
+        Cookies.set('sb-auth-token', 'authenticated', { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
         set({
           user: {
             id: data.user.id,
@@ -150,8 +166,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       const supabase = createClient()
-      // Remove role cookie
+      // Remove cookies
       Cookies.remove('user_role', { path: '/' })
+      Cookies.remove('sb-auth-token', { path: '/' })
       await supabase.auth.signOut()
       set({ user: null })
     } catch (error) {
@@ -176,8 +193,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         
         const role = (profileData?.role as 'user' | 'admin') || 'user'
         
-        // Update role cookie
+        // Update cookies
         Cookies.set('user_role', role, { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+        
+        Cookies.set('sb-auth-token', 'authenticated', { 
           expires: 7, // 7 days
           path: '/',
           secure: process.env.NODE_ENV === 'production',
@@ -196,13 +220,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return true
       }
       
-      // Clear role cookie if not authenticated
+      // Clear cookies if not authenticated
       Cookies.remove('user_role', { path: '/' })
+      Cookies.remove('sb-auth-token', { path: '/' })
       set({ user: null })
       return false
     } catch (error) {
-      // Clear role cookie on error
+      // Clear cookies on error
       Cookies.remove('user_role', { path: '/' })
+      Cookies.remove('sb-auth-token', { path: '/' })
       set({ user: null })
       return false
     } finally {
