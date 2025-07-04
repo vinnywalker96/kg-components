@@ -1,45 +1,58 @@
-// This script seeds the database with the required categories
-// Run with: node scripts/seed-categories.js
-
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase credentials. Make sure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in your .env file.');
+  console.error('Missing Supabase credentials. Please check your .env file.');
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Categories to seed
+// Initial categories data
 const categories = [
   {
-    name: 'Tools',
-    description: 'Hand tools, power tools, and specialized tools for electronics work'
+    name: 'Resistors',
+    description: 'Electronic components that resist the flow of electrical current.'
   },
   {
-    name: 'Accessories',
-    description: 'Add-ons and accessories for electronic components and devices'
+    name: 'Capacitors',
+    description: 'Electronic components that store electrical energy in an electric field.'
   },
   {
-    name: 'Instruments',
-    description: 'Measurement and testing instruments for electronic projects'
+    name: 'Integrated Circuits',
+    description: 'Microchips that contain thousands or millions of tiny electronic components.'
   },
   {
-    name: 'Components',
-    description: 'Electronic components including resistors, capacitors, ICs, and more'
+    name: 'Transistors',
+    description: 'Semiconductor devices used to amplify or switch electronic signals.'
   },
   {
-    name: 'Power Products',
-    description: 'Power supplies, batteries, chargers, and power management solutions'
+    name: 'Diodes',
+    description: 'Electronic components that allow current to flow in only one direction.'
   },
   {
-    name: 'Test and Measurements',
-    description: 'Equipment and tools for testing, measuring, and analyzing electronic circuits'
+    name: 'LEDs',
+    description: 'Light-emitting diodes that produce light when current flows through them.'
+  },
+  {
+    name: 'Sensors',
+    description: 'Devices that detect changes in the environment and send information to other electronics.'
+  },
+  {
+    name: 'Connectors',
+    description: 'Components used to join electrical circuits together.'
+  },
+  {
+    name: 'Power Supplies',
+    description: 'Devices that supply electric power to an electrical load.'
+  },
+  {
+    name: 'Development Boards',
+    description: 'Circuit boards with a microcontroller and minimal support components.'
   }
 ];
 
@@ -47,35 +60,35 @@ async function seedCategories() {
   console.log('Starting to seed categories...');
   
   try {
-    // Check for existing categories to avoid duplicates
-    const { data: existingCategories, error: fetchError } = await supabase
-      .from('categories')
-      .select('name');
-    
-    if (fetchError) {
-      throw fetchError;
-    }
-    
-    const existingNames = existingCategories.map(cat => cat.name);
-    const newCategories = categories.filter(cat => !existingNames.includes(cat.name));
-    
-    if (newCategories.length === 0) {
-      console.log('All categories already exist. No new categories added.');
-      return;
-    }
-    
-    // Insert new categories
+    // Insert categories
     const { data, error } = await supabase
       .from('categories')
-      .insert(newCategories)
-      .select();
+      .upsert(
+        categories.map(category => ({
+          ...category,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })),
+        { onConflict: 'name' }
+      );
     
     if (error) {
       throw error;
     }
     
-    console.log(`Successfully added ${data.length} new categories:`);
-    data.forEach(cat => console.log(`- ${cat.name}`));
+    console.log('Categories seeded successfully!');
+    
+    // Get all categories to verify
+    const { data: allCategories, error: fetchError } = await supabase
+      .from('categories')
+      .select('*');
+    
+    if (fetchError) {
+      throw fetchError;
+    }
+    
+    console.log(`Total categories in database: ${allCategories.length}`);
+    console.log('Categories:', allCategories.map(c => c.name).join(', '));
     
   } catch (error) {
     console.error('Error seeding categories:', error);
@@ -84,6 +97,12 @@ async function seedCategories() {
 
 // Run the seed function
 seedCategories()
-  .then(() => console.log('Seeding completed.'))
-  .catch(err => console.error('Seeding failed:', err));
+  .then(() => {
+    console.log('Seeding completed.');
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error('Seeding failed:', err);
+    process.exit(1);
+  });
 

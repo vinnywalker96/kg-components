@@ -11,6 +11,7 @@ A Next.js e-commerce application with Supabase integration for authentication, u
 - Admin dashboard for managing products, categories, orders, and users
 - Role-based access control
 - Banking details management for payment instructions
+- Multilingual support (English and Portuguese)
 
 ## Tech Stack
 
@@ -29,18 +30,34 @@ A Next.js e-commerce application with Supabase integration for authentication, u
 
 ### Environment Setup
 
-Create a `.env.local` file in the root directory with the following variables:
+1. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+2. Update the `.env` file with your Supabase credentials:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
 ### Database Setup
 
 1. Create a new Supabase project
-2. Run the SQL schema in `db/schema.sql` in the Supabase SQL editor
-3. Enable Email Auth in Supabase Authentication settings
+2. Set up the following tables in your Supabase database:
+   - profiles
+   - categories
+   - products
+   - cart_items
+   - orders
+   - order_items
+   - banking_details
+
+3. You can use the seed scripts to populate initial data:
+   ```bash
+   npm run seed:categories
+   npm run import:products
+   ```
 
 ### Installation
 
@@ -53,6 +70,35 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Supabase Configuration
+
+### Authentication Setup
+
+1. In your Supabase dashboard, go to Authentication → Settings
+2. Enable Email provider
+3. Configure any additional providers as needed (Google, GitHub, etc.)
+4. Set up redirect URLs for authentication:
+   - Site URL: `http://localhost:3000` (for development)
+   - Redirect URLs: 
+     - `http://localhost:3000/auth/callback`
+     - `http://localhost:3000/auth/reset-callback`
+
+### Database Schema
+
+The application uses the following database schema:
+
+1. **profiles** - User profiles with role-based access
+2. **categories** - Product categories
+3. **products** - Product information
+4. **cart_items** - Shopping cart items
+5. **orders** - Order information
+6. **order_items** - Items within orders
+7. **banking_details** - Banking information for payment instructions
+
+### Row Level Security (RLS)
+
+For production, make sure to set up appropriate Row Level Security policies in Supabase to protect your data.
 
 ## Master Admin Account
 
@@ -99,4 +145,3 @@ npm run build
 # Start production server
 npm start
 ```
-

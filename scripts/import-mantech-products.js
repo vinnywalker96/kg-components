@@ -1,121 +1,226 @@
-// This script imports products from Mantech.co.za
-// Run with: node scripts/import-mantech-products.js
-
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios');
-const cheerio = require('cheerio');
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase credentials. Make sure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in your .env file.');
+  console.error('Missing Supabase credentials. Please check your .env file.');
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Mantech categories mapping to our database categories
-const categoryMapping = {
-  'Tools': ['Tools', 'Hand Tools', 'Power Tools', 'Soldering Equipment'],
-  'Accessories': ['Accessories', 'Cables & Connectors', 'Enclosures', 'Prototyping'],
-  'Instruments': ['Test & Measurement', 'Oscilloscopes', 'Multimeters', 'Function Generators'],
-  'Components': ['Components', 'Resistors', 'Capacitors', 'Semiconductors', 'ICs', 'LEDs'],
-  'Power Products': ['Power', 'Power Supplies', 'Batteries', 'Chargers', 'Adapters'],
-  'Test and Measurements': ['Test & Measurement', 'Oscilloscopes', 'Multimeters', 'Signal Generators']
-};
-
-// Base URL for Mantech
-const MANTECH_BASE_URL = 'https://mantech.co.za';
-const CATEGORIES_URL = 'https://mantech.co.za/Categories.aspx';
-
-async function fetchCategoryLinks() {
-  console.log('Fetching category links from Mantech...');
-  try {
-    const response = await axios.get(CATEGORIES_URL);
-    const $ = cheerio.load(response.data);
-    
-    const categoryLinks = [];
-    
-    // Find category links on the page
-    $('.CategoryItem a').each((i, element) => {
-      const link = $(element).attr('href');
-      const name = $(element).text().trim();
-      
-      if (link && name) {
-        // Check if this category matches any of our mapped categories
-        for (const [ourCategory, mantechCategories] of Object.entries(categoryMapping)) {
-          if (mantechCategories.some(cat => name.includes(cat))) {
-            categoryLinks.push({
-              url: link.startsWith('http') ? link : `${MANTECH_BASE_URL}/${link}`,
-              name,
-              ourCategory
-            });
-            break;
-          }
-        }
-      }
-    });
-    
-    console.log(`Found ${categoryLinks.length} relevant category links`);
-    return categoryLinks;
-  } catch (error) {
-    console.error('Error fetching category links:', error);
-    return [];
+// Sample products data
+const products = [
+  // Resistors
+  {
+    name: '10K Ohm Resistor Pack',
+    description: 'Pack of 100 10K Ohm resistors, 1/4W, 5% tolerance',
+    price: 4.99,
+    stock: 50,
+    image_url: 'https://example.com/images/10k-resistors.jpg',
+    category_name: 'Resistors',
+    featured: true
+  },
+  {
+    name: 'Resistor Assortment Kit',
+    description: '600pcs resistor kit with various values from 0 Ohm to 10M Ohm',
+    price: 12.99,
+    stock: 25,
+    image_url: 'https://example.com/images/resistor-kit.jpg',
+    category_name: 'Resistors',
+    featured: false
+  },
+  
+  // Capacitors
+  {
+    name: 'Ceramic Capacitor Kit',
+    description: 'Assortment of ceramic capacitors from 1pF to 100nF',
+    price: 9.99,
+    stock: 30,
+    image_url: 'https://example.com/images/ceramic-caps.jpg',
+    category_name: 'Capacitors',
+    featured: true
+  },
+  {
+    name: 'Electrolytic Capacitor Set',
+    description: 'Set of 120 electrolytic capacitors, various values',
+    price: 14.99,
+    stock: 20,
+    image_url: 'https://example.com/images/electrolytic-caps.jpg',
+    category_name: 'Capacitors',
+    featured: false
+  },
+  
+  // Integrated Circuits
+  {
+    name: '555 Timer IC',
+    description: 'Classic 555 timer integrated circuit, DIP-8 package',
+    price: 0.99,
+    stock: 100,
+    image_url: 'https://example.com/images/555-timer.jpg',
+    category_name: 'Integrated Circuits',
+    featured: true
+  },
+  {
+    name: 'LM358 Op-Amp',
+    description: 'Dual operational amplifier IC, DIP-8 package',
+    price: 1.29,
+    stock: 75,
+    image_url: 'https://example.com/images/lm358.jpg',
+    category_name: 'Integrated Circuits',
+    featured: false
+  },
+  
+  // Transistors
+  {
+    name: '2N2222 NPN Transistor',
+    description: 'General purpose NPN transistor, TO-92 package',
+    price: 0.25,
+    stock: 200,
+    image_url: 'https://example.com/images/2n2222.jpg',
+    category_name: 'Transistors',
+    featured: true
+  },
+  {
+    name: 'TIP120 Darlington Transistor',
+    description: 'NPN Darlington transistor, TO-220 package',
+    price: 0.89,
+    stock: 50,
+    image_url: 'https://example.com/images/tip120.jpg',
+    category_name: 'Transistors',
+    featured: false
+  },
+  
+  // Diodes
+  {
+    name: '1N4007 Diode',
+    description: 'General purpose rectifier diode, 1000V 1A',
+    price: 0.15,
+    stock: 300,
+    image_url: 'https://example.com/images/1n4007.jpg',
+    category_name: 'Diodes',
+    featured: false
+  },
+  {
+    name: 'Zener Diode Kit',
+    description: 'Assortment of zener diodes with various voltage ratings',
+    price: 8.99,
+    stock: 40,
+    image_url: 'https://example.com/images/zener-kit.jpg',
+    category_name: 'Diodes',
+    featured: true
+  },
+  
+  // LEDs
+  {
+    name: '5mm LED Assortment',
+    description: '100pcs 5mm LEDs in various colors',
+    price: 7.99,
+    stock: 35,
+    image_url: 'https://example.com/images/led-assortment.jpg',
+    category_name: 'LEDs',
+    featured: true
+  },
+  {
+    name: 'RGB LED Strip',
+    description: '5m waterproof RGB LED strip with controller',
+    price: 19.99,
+    stock: 15,
+    image_url: 'https://example.com/images/led-strip.jpg',
+    category_name: 'LEDs',
+    featured: true
+  },
+  
+  // Sensors
+  {
+    name: 'DHT22 Temperature & Humidity Sensor',
+    description: 'Digital temperature and humidity sensor module',
+    price: 3.99,
+    stock: 45,
+    image_url: 'https://example.com/images/dht22.jpg',
+    category_name: 'Sensors',
+    featured: true
+  },
+  {
+    name: 'HC-SR04 Ultrasonic Sensor',
+    description: 'Ultrasonic distance measuring sensor module',
+    price: 2.49,
+    stock: 60,
+    image_url: 'https://example.com/images/hcsr04.jpg',
+    category_name: 'Sensors',
+    featured: false
+  },
+  
+  // Connectors
+  {
+    name: 'Dupont Wire Jumper Kit',
+    description: '120pcs male-to-male, male-to-female, female-to-female jumper wires',
+    price: 6.99,
+    stock: 50,
+    image_url: 'https://example.com/images/dupont-wires.jpg',
+    category_name: 'Connectors',
+    featured: true
+  },
+  {
+    name: 'Screw Terminal Block Set',
+    description: 'Assorted PCB screw terminal blocks',
+    price: 8.49,
+    stock: 30,
+    image_url: 'https://example.com/images/terminal-blocks.jpg',
+    category_name: 'Connectors',
+    featured: false
+  },
+  
+  // Power Supplies
+  {
+    name: 'Adjustable DC Power Supply Module',
+    description: 'LM2596 DC-DC buck converter step-down power module',
+    price: 4.99,
+    stock: 40,
+    image_url: 'https://example.com/images/buck-converter.jpg',
+    category_name: 'Power Supplies',
+    featured: true
+  },
+  {
+    name: '9V 1A Power Adapter',
+    description: 'AC to DC 9V 1A power adapter with 5.5mm x 2.1mm plug',
+    price: 7.99,
+    stock: 25,
+    image_url: 'https://example.com/images/9v-adapter.jpg',
+    category_name: 'Power Supplies',
+    featured: false
+  },
+  
+  // Development Boards
+  {
+    name: 'Arduino Uno R3',
+    description: 'Arduino Uno R3 development board with ATmega328P microcontroller',
+    price: 22.99,
+    stock: 30,
+    image_url: 'https://example.com/images/arduino-uno.jpg',
+    category_name: 'Development Boards',
+    featured: true
+  },
+  {
+    name: 'Raspberry Pi 4 Model B - 4GB',
+    description: 'Raspberry Pi 4 Model B with 4GB RAM',
+    price: 55.99,
+    stock: 15,
+    image_url: 'https://example.com/images/raspberry-pi-4.jpg',
+    category_name: 'Development Boards',
+    featured: true
   }
-}
-
-async function fetchProductsFromCategory(categoryLink) {
-  console.log(`Fetching products from category: ${categoryLink.name}`);
-  try {
-    const response = await axios.get(categoryLink.url);
-    const $ = cheerio.load(response.data);
-    
-    const products = [];
-    
-    // Find product items on the page
-    $('.ProductItem').each((i, element) => {
-      // Limit to 10 products per category for initial import
-      if (i >= 10) return;
-      
-      const name = $(element).find('.ProductName').text().trim();
-      const priceText = $(element).find('.ProductPrice').text().trim();
-      const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
-      const imageUrl = $(element).find('img').attr('src');
-      const fullImageUrl = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `${MANTECH_BASE_URL}/${imageUrl}`) : null;
-      
-      // Get product description if available
-      const description = $(element).find('.ProductDescription').text().trim() || 
-                         `${name} - ${categoryLink.name} category product`;
-      
-      if (name && price > 0) {
-        products.push({
-          name,
-          description,
-          price,
-          image_url: fullImageUrl,
-          stock: Math.floor(Math.random() * 50) + 1, // Random stock between 1-50
-          featured: Math.random() < 0.2 // 20% chance of being featured
-        });
-      }
-    });
-    
-    console.log(`Found ${products.length} products in category: ${categoryLink.name}`);
-    return { products, ourCategory: categoryLink.ourCategory };
-  } catch (error) {
-    console.error(`Error fetching products from category ${categoryLink.name}:`, error);
-    return { products: [], ourCategory: categoryLink.ourCategory };
-  }
-}
+];
 
 async function importProducts() {
-  console.log('Starting product import from Mantech.co.za...');
+  console.log('Starting to import products...');
   
   try {
-    // Get our category IDs from the database
-    const { data: dbCategories, error: categoryError } = await supabase
+    // Get all categories to map names to IDs
+    const { data: categories, error: categoryError } = await supabase
       .from('categories')
       .select('id, name');
     
@@ -123,69 +228,75 @@ async function importProducts() {
       throw categoryError;
     }
     
-    if (!dbCategories || dbCategories.length === 0) {
-      throw new Error('No categories found in the database. Please run seed-categories.js first.');
+    if (!categories || categories.length === 0) {
+      throw new Error('No categories found. Please run seed-categories.js first.');
     }
     
-    // Create a mapping of category names to IDs
-    const categoryIds = {};
-    dbCategories.forEach(cat => {
-      categoryIds[cat.name] = cat.id;
+    // Create a map of category names to IDs
+    const categoryMap = {};
+    categories.forEach(category => {
+      categoryMap[category.name] = category.id;
     });
     
-    // Fetch category links from Mantech
-    const categoryLinks = await fetchCategoryLinks();
-    
-    if (categoryLinks.length === 0) {
-      throw new Error('No category links found on Mantech.co.za');
-    }
-    
-    // Process each category
-    let totalImported = 0;
-    
-    for (const categoryLink of categoryLinks) {
-      const { products, ourCategory } = await fetchProductsFromCategory(categoryLink);
-      
-      if (products.length === 0) continue;
-      
-      // Get the category ID for these products
-      const categoryId = categoryIds[ourCategory];
-      
+    // Prepare products with category IDs
+    const productsWithCategoryIds = products.map(product => {
+      const categoryId = categoryMap[product.category_name];
       if (!categoryId) {
-        console.warn(`Category "${ourCategory}" not found in database. Skipping ${products.length} products.`);
-        continue;
+        console.warn(`Category "${product.category_name}" not found for product "${product.name}". Skipping.`);
+        return null;
       }
       
-      // Add category ID to all products
-      const productsWithCategory = products.map(product => ({
-        ...product,
-        category_id: categoryId
-      }));
-      
-      // Insert products into database
-      const { data: insertedProducts, error: insertError } = await supabase
-        .from('products')
-        .insert(productsWithCategory)
-        .select();
-      
-      if (insertError) {
-        console.error(`Error inserting products for category ${ourCategory}:`, insertError);
-        continue;
-      }
-      
-      console.log(`Successfully imported ${insertedProducts.length} products into category "${ourCategory}"`);
-      totalImported += insertedProducts.length;
+      return {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        image_url: product.image_url,
+        category_id: categoryId,
+        featured: product.featured,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }).filter(Boolean); // Remove null entries
+    
+    // Insert products
+    const { data, error } = await supabase
+      .from('products')
+      .upsert(productsWithCategoryIds, { onConflict: 'name' });
+    
+    if (error) {
+      throw error;
     }
     
-    console.log(`Import completed. Total products imported: ${totalImported}`);
+    console.log(`Imported ${productsWithCategoryIds.length} products successfully!`);
+    
+    // Get count of products by category
+    for (const category of categories) {
+      const { count, error: countError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('category_id', category.id);
+      
+      if (countError) {
+        console.error(`Error counting products for category ${category.name}:`, countError);
+      } else {
+        console.log(`Category "${category.name}": ${count} products`);
+      }
+    }
     
   } catch (error) {
-    console.error('Error during product import:', error);
+    console.error('Error importing products:', error);
   }
 }
 
 // Run the import function
 importProducts()
-  .then(() => console.log('Import process completed.'))
-  .catch(err => console.error('Import process failed:', err));
+  .then(() => {
+    console.log('Import completed.');
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error('Import failed:', err);
+    process.exit(1);
+  });
 
