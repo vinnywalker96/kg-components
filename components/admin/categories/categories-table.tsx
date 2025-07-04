@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import { Edit, Trash2, Search } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 interface CategoriesTableProps {
   categories: any[]
 }
 
 export function CategoriesTable({ categories }: CategoriesTableProps) {
+  const { t } = useLanguage()
   const [searchTerm, setSearchTerm] = useState('')
   
   const filteredCategories = categories.filter(category => 
@@ -25,7 +27,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search categories..."
+            placeholder={t('searchCategories')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -38,18 +40,18 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left font-medium py-3 px-4">Name</th>
-                <th className="text-left font-medium py-3 px-4">Description</th>
-                <th className="text-right font-medium py-3 px-4">Products</th>
-                <th className="text-right font-medium py-3 px-4">Created</th>
-                <th className="text-right font-medium py-3 px-4">Actions</th>
+                <th className="text-left font-medium py-3 px-4">{t('categoryName')}</th>
+                <th className="text-left font-medium py-3 px-4">{t('description')}</th>
+                <th className="text-right font-medium py-3 px-4">{t('products')}</th>
+                <th className="text-right font-medium py-3 px-4">{t('created')}</th>
+                <th className="text-right font-medium py-3 px-4">{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredCategories.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-muted-foreground">
-                    No categories found.
+                    {t('noCategories')}
                   </td>
                 </tr>
               ) : (
@@ -59,7 +61,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                       <div className="font-medium">{category.name}</div>
                     </td>
                     <td className="py-3 px-4">
-                      {category.description || 'No description'}
+                      {category.description || t('noDescription')}
                     </td>
                     <td className="py-3 px-4 text-right">
                       {category.product_count}
@@ -72,12 +74,12 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                         <Button variant="ghost" size="icon" asChild>
                           <Link href={`/admin/categories/${category.id}`}>
                             <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
+                            <span className="sr-only">{t('edit')}</span>
                           </Link>
                         </Button>
                         <Button variant="ghost" size="icon">
                           <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
+                          <span className="sr-only">{t('delete')}</span>
                         </Button>
                       </div>
                     </td>
@@ -91,4 +93,3 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
     </div>
   )
 }
-

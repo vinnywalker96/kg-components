@@ -1,46 +1,70 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { CategoriesTable } from '@/components/admin/categories/categories-table'
-import { createClient } from '@/lib/supabase/server'
+import { useSupabase } from '@/components/providers/supabase-provider'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
-import { Metadata } from 'next'
+import { useLanguage } from '@/lib/i18n/language-context'
+import { useEffect, useState } from 'react'
 
-export const metadata: Metadata = {
-  title: 'Manage Categories | Admin Dashboard',
-  description: 'Add, edit, and manage product categories in your store.',
-}
-
-export default async function AdminCategoriesPage() {
-  const supabase = createClient()
+export default function AdminCategoriesPage() {
+  const { t } = useLanguage()
+  const { supabase } = useSupabase()
+  const [categories, setCategories] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   
-  // Get categories with product count
-  const { data: categories } = await supabase
-    .from('categories')
-    .select(`
-      *,
-      products:products(count)
-    `)
-    .order('name', { ascending: true })
-  
-  // Transform data to include product count
-  const categoriesWithCount = categories?.map(category => ({
-    ...category,
-    product_count: category.products.length
-  })) || []
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true)
+      try {
+        // Get categories with product count
+        const { data, error } = await supabase
+          .from('categories')
+          .select(`
+            *,
+            products:products(count)
+          `)
+          .order('name', { ascending: true })
+        
+        if (error) {
+          throw error
+        }
+        
+        // Transform data to include product count
+        const categoriesWithCount = data?.map(category => ({
+          ...category,
+          product_count: category.products.length
+        })) || []
+        
+        setCategories(categoriesWithCount)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchCategories()
+  }, [supabase])
   
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Categories</h1>
+        <h1 className="text-3xl font-bold">{t('categories')}</h1>
         <Button asChild>
           <Link href="/admin/categories/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add Category
+            {t('addNewCategory')}
           </Link>
         </Button>
       </div>
       
-      <CategoriesTable categories={categoriesWithCount} />
+      {loading ? (
+        <div className="text-center py-10">{t('loading')}</div>
+      ) : (
+        <CategoriesTable categories={categories} />
+      )}
     </div>
   )
 }

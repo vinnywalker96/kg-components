@@ -164,6 +164,18 @@ export type TranslationKey =
   | 'orderItems'
   | 'noOrders'
   
+  // Categories Management
+  | 'addNewCategory'
+  | 'editCategory'
+  | 'categoryDetails'
+  | 'categoryName'
+  | 'createCategory'
+  | 'confirmDeletion'
+  | 'searchCategories'
+  | 'noCategories'
+  | 'noDescription'
+  | 'created'
+  
   // Misc
   | 'loading'
   | 'error'
@@ -342,6 +354,18 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     joinOurCommunityPart1: 'KG-Components is more than just a supplier—we\'re a community of makers, creators, and innovators. Follow us on social media to stay updated on new products, technical tips, and inspiring projects from our community.',
     joinOurCommunityPart2: 'We also regularly publish tutorials, project ideas, and technical articles on our blog to help you make the most of your electronic components.',
     
+    // Categories Management
+    addNewCategory: 'Add New Category',
+    editCategory: 'Edit Category',
+    categoryDetails: 'Category Details',
+    categoryName: 'Category Name',
+    createCategory: 'Create Category',
+    confirmDeletion: 'Confirm Deletion',
+    searchCategories: 'Search categories...',
+    noCategories: 'No categories found.',
+    noDescription: 'No description',
+    created: 'Created',
+    
     // Misc
     loading: 'Loading...',
     error: 'Error',
@@ -519,6 +543,18 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     joinOurCommunity: 'Junte-se à Nossa Comunidade',
     joinOurCommunityPart1: 'A KG-Components é mais do que apenas um fornecedor—somos uma comunidade de criadores, inventores e inovadores. Siga-nos nas redes sociais para se manter atualizado sobre novos produtos, dicas técnicas e projetos inspiradores de nossa comunidade.',
     joinOurCommunityPart2: 'Também publicamos regularmente tutoriais, ideias de projetos e artigos técnicos em nosso blog para ajudá-lo a aproveitar ao máximo seus componentes eletrônicos.',
+    
+    // Categories Management
+    addNewCategory: 'Adicionar Nova Categoria',
+    editCategory: 'Editar Categoria',
+    categoryDetails: 'Detalhes da Categoria',
+    categoryName: 'Nome da Categoria',
+    createCategory: 'Criar Categoria',
+    confirmDeletion: 'Confirmar Exclusão',
+    searchCategories: 'Buscar categorias...',
+    noCategories: 'Nenhuma categoria encontrada.',
+    noDescription: 'Sem descrição',
+    created: 'Criado em',
     
     // Misc
     loading: 'Carregando...',
