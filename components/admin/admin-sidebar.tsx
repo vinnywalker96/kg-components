@@ -10,38 +10,40 @@ import {
   Users, 
   Settings 
 } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const { t } = useLanguage()
   
   const links = [
     {
-      name: 'Dashboard',
+      name: t('dashboard'),
       href: '/admin',
       icon: LayoutDashboard,
     },
     {
-      name: 'Products',
+      name: t('products'),
       href: '/admin/products',
       icon: Package,
     },
     {
-      name: 'Categories',
+      name: t('categories'),
       href: '/admin/categories',
       icon: Tags,
     },
     {
-      name: 'Orders',
+      name: t('orders'),
       href: '/admin/orders',
       icon: ShoppingCart,
     },
     {
-      name: 'Users',
+      name: t('users'),
       href: '/admin/users',
       icon: Users,
     },
     {
-      name: 'Settings',
+      name: t('settings'),
       href: '/admin/settings',
       icon: Settings,
     },
@@ -71,4 +73,3 @@ export function AdminSidebar() {
     </div>
   )
 }
-

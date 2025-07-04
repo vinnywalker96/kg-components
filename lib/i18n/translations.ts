@@ -175,6 +175,7 @@ export type TranslationKey =
   | 'noCategories'
   | 'noDescription'
   | 'created'
+  | 'categories'
   
   // Misc
   | 'loading'
@@ -365,6 +366,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     noCategories: 'No categories found.',
     noDescription: 'No description',
     created: 'Created',
+    categories: 'Categories',
     
     // Misc
     loading: 'Loading...',
@@ -555,6 +557,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     noCategories: 'Nenhuma categoria encontrada.',
     noDescription: 'Sem descrição',
     created: 'Criado em',
+    categories: 'Categorias',
     
     // Misc
     loading: 'Carregando...',
