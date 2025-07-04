@@ -16,7 +16,7 @@ export default function LanguageSettingsPage() {
     setLanguage(selectedLanguage)
     toast({
       title: t('success'),
-      description: 'Default language has been updated.',
+      description: `Language has been updated to ${selectedLanguage === 'en' ? 'English' : 'Portuguese'}.`,
       duration: 3000,
     })
   }
@@ -40,20 +40,26 @@ export default function LanguageSettingsPage() {
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="en" id="en" />
-              <Label htmlFor="en">🇺🇸 English</Label>
+              <Label htmlFor="en">🇺🇸 English (en)</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="pt" id="pt" />
-              <Label htmlFor="pt">🇧🇷 Português</Label>
+              <Label htmlFor="pt">🇧🇷 Português (pt)</Label>
             </div>
           </RadioGroup>
           
-          <Button 
-            onClick={handleSaveLanguage} 
-            className="mt-6"
-          >
-            {t('save')}
-          </Button>
+          <div className="mt-6 space-y-4">
+            <div className="text-sm text-muted-foreground">
+              <p>Current language: <span className="font-medium">{language}</span></p>
+              <p className="mt-1">This setting will apply to all pages and will be saved for your next visit.</p>
+            </div>
+            
+            <Button 
+              onClick={handleSaveLanguage} 
+            >
+              {t('save')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

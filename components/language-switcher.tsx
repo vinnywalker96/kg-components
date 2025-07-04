@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
 import { Globe } from 'lucide-react'
 
@@ -22,17 +23,20 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuLabel>
+          {t('language')}: <span className="font-bold">{language}</span>
+        </DropdownMenuLabel>
         <DropdownMenuItem 
           onClick={() => setLanguage('en')}
           className={language === 'en' ? 'bg-accent' : ''}
         >
-          🇺🇸 {t('switchToEnglish')}
+          🇺🇸 English (en)
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setLanguage('pt')}
           className={language === 'pt' ? 'bg-accent' : ''}
         >
-          🇧🇷 {t('switchToPortuguese')}
+          🇧🇷 Português (pt)
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

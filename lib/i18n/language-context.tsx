@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Language, TranslationKey, translations } from './translations'
+import Cookies from 'js-cookie'
 
 type LanguageContextType = {
   language: Language
@@ -20,24 +21,34 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const savedLanguage = localStorage.getItem('language') as Language
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'pt')) {
       setLanguageState(savedLanguage)
+      // Also set cookie for server-side rendering
+      Cookies.set('language', savedLanguage, { path: '/' })
     } else {
       // Try to detect browser language
       const browserLanguage = navigator.language.split('-')[0]
       if (browserLanguage === 'pt') {
         setLanguageState('pt')
         localStorage.setItem('language', 'pt')
+        Cookies.set('language', 'pt', { path: '/' })
       } else {
         // Default to English for any other language
         setLanguageState('en')
         localStorage.setItem('language', 'en')
+        Cookies.set('language', 'en', { path: '/' })
       }
     }
   }, [])
 
-  // Update language and save to localStorage
+  // Update language and save to localStorage and cookie
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage)
     localStorage.setItem('language', newLanguage)
+    // Set cookie for server-side rendering
+    Cookies.set('language', newLanguage, { path: '/' })
+    
+    // Force a page refresh to ensure all server components update
+    // This is needed because server components won't re-render with client state changes
+    window.location.reload()
   }
 
   // Translation function
@@ -59,4 +70,3 @@ export function useLanguage() {
   }
   return context
 }
-
