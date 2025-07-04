@@ -50,6 +50,14 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax'
         })
+        
+        // Set auth token cookie for middleware
+        Cookies.set('sb-auth-token', 'authenticated', { 
+          expires: 7, // 7 days
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
       }
     } catch (error) {
       console.error('Error fetching user role:', error)
@@ -89,8 +97,9 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           
           // Handle sign out
           if (event === 'SIGNED_OUT') {
-            // Clear role cookie
+            // Clear cookies
             Cookies.remove('user_role', { path: '/' })
+            Cookies.remove('sb-auth-token', { path: '/' })
           }
           
           setLoading(false)
@@ -110,8 +119,9 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Clear role cookie
+      // Clear cookies
       Cookies.remove('user_role', { path: '/' })
+      Cookies.remove('sb-auth-token', { path: '/' })
       await supabase.auth.signOut()
       router.push('/')
     } catch (error) {
