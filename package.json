@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "seed:categories": "node scripts/seed-categories.js",
-    "import:products": "node scripts/import-mantech-products.js"
+    "import:products": "node scripts/import-mantech-products.js",
+    "add:capacitor": "node scripts/add-capacitor-product.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",

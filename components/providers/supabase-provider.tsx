@@ -1,173 +1,59 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
-import { Session, User, AuthChangeEvent } from '@supabase/supabase-js'
-import { Database } from '@/types/supabase'
-import Cookies from 'js-cookie'
+import { type User } from '@supabase/supabase-js'
+import { type Database } from '@/types/supabase'
 
-type SupabaseContext = {
+interface SupabaseContextType {
   supabase: ReturnType<typeof createBrowserClient<Database>>
-  session: Session | null
   user: User | null
   loading: boolean
-  signOut: () => Promise<void>
 }
 
-const Context = createContext<SupabaseContext | undefined>(undefined)
+const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined)
 
-export function SupabaseProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null)
+export function SupabaseProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   
-  // Check if Supabase environment variables are set
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabase = createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   
-  // Create a mock client if environment variables are missing
-  const supabase = !supabaseUrl || !supabaseAnonKey
-    ? createMockClient()
-    : createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
-  
-  const router = useRouter()
-
-  // Function to fetch and set user role
-  const fetchAndSetUserRole = async (userId: string) => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single()
-      
-      if (profile?.role) {
-        // Set role in cookie for middleware to use
-        Cookies.set('user_role', profile.role, { 
-          expires: 7, // 7 days
-          path: '/',
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax'
-        })
-        
-        // Set auth token cookie for middleware
-        Cookies.set('sb-auth-token', 'authenticated', { 
-          expires: 7, // 7 days
-          path: '/',
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax'
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching user role:', error)
-    }
-  }
-
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        // If user is logged in, fetch and set role
-        if (session?.user?.id) {
-          await fetchAndSetUserRole(session.user.id)
-        }
-      } catch (error) {
-        console.error('Error getting session:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getSession()
-
-    try {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event: AuthChangeEvent, session: Session | null) => {
-          setSession(session)
-          setUser(session?.user ?? null)
-          
-          // Handle sign in and user update events
-          if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user?.id) {
-            await fetchAndSetUserRole(session.user.id)
-          }
-          
-          // Handle sign out
-          if (event === 'SIGNED_OUT') {
-            // Clear cookies
-            Cookies.remove('user_role', { path: '/' })
-            Cookies.remove('sb-auth-token', { path: '/' })
-          }
-          
-          setLoading(false)
-          router.refresh()
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user || null)
+      setLoading(false)
+      
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          setUser(session?.user || null)
         }
       )
-
+      
       return () => {
-        subscription.unsubscribe()
+        authListener.subscription.unsubscribe()
       }
-    } catch (error) {
-      console.error('Error setting up auth state change listener:', error)
-      setLoading(false)
-      return () => {}
     }
-  }, [supabase, router])
-
-  const signOut = async () => {
-    try {
-      // Clear cookies
-      Cookies.remove('user_role', { path: '/' })
-      Cookies.remove('sb-auth-token', { path: '/' })
-      await supabase.auth.signOut()
-      router.push('/')
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
-  }
-
-  const value = {
-    supabase,
-    session,
-    user,
-    loading,
-    signOut
-  }
-
-  return <Context.Provider value={value}>{children}</Context.Provider>
-}
-
-// Create a mock Supabase client for development without environment variables
-function createMockClient() {
-  console.warn('Using mock Supabase client - environment variables are missing')
-  return {
-    auth: {
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ 
-        data: { 
-          subscription: { 
-            unsubscribe: () => {} 
-          } 
-        } 
-      }),
-      signOut: () => Promise.resolve({ error: null }),
-    },
-    from: () => ({
-      select: () => ({
-        eq: () => Promise.resolve({ data: [], error: null }),
-        order: () => Promise.resolve({ data: [], error: null }),
-      }),
-    }),
-  } as any
+    
+    getUser()
+  }, [supabase])
+  
+  return (
+    <SupabaseContext.Provider value={{ supabase, user, loading }}>
+      {children}
+    </SupabaseContext.Provider>
+  )
 }
 
 export function useSupabase() {
-  const context = useContext(Context)
+  const context = useContext(SupabaseContext)
   if (context === undefined) {
-    throw new Error('useSupabase must be used inside SupabaseProvider')
+    throw new Error('useSupabase must be used within a SupabaseProvider')
   }
   return context
 }
+

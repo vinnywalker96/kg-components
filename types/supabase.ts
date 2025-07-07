@@ -9,229 +9,290 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      profiles: {
+      banking_details: {
         Row: {
-          id: string
-          name: string | null
-          email: string | null
-          phone: string | null
-          address: string | null
-          role: string
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch_code: string | null
           created_at: string
+          id: string
+          is_default: boolean
+          swift_code: string | null
           updated_at: string
         }
         Insert: {
-          id: string
-          name?: string | null
-          email?: string | null
-          phone?: string | null
-          address?: string | null
-          role?: string
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch_code?: string | null
           created_at?: string
+          id?: string
+          is_default?: boolean
+          swift_code?: string | null
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string | null
-          email?: string | null
-          phone?: string | null
-          address?: string | null
-          role?: string
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          branch_code?: string | null
           created_at?: string
+          id?: string
+          is_default?: boolean
+          swift_code?: string | null
           updated_at?: string
         }
-      }
-      categories: {
-        Row: {
-          id: string
-          name: string
-          description: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          description?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          description?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      products: {
-        Row: {
-          id: string
-          name: string
-          description: string | null
-          price: number
-          stock: number
-          image_url: string | null
-          category_id: string | null
-          featured: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          description?: string | null
-          price: number
-          stock?: number
-          image_url?: string | null
-          category_id?: string | null
-          featured?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          description?: string | null
-          price?: number
-          stock?: number
-          image_url?: string | null
-          category_id?: string | null
-          featured?: boolean
-          created_at?: string
-          updated_at?: string
-        }
+        Relationships: []
       }
       cart_items: {
         Row: {
+          created_at: string
           id: string
-          user_id: string
           product_id: string
           quantity: number
-          created_at: string
           updated_at: string
+          user_id: string
         }
         Insert: {
+          created_at?: string
           id?: string
-          user_id: string
           product_id: string
           quantity?: number
-          created_at?: string
           updated_at?: string
+          user_id: string
         }
         Update: {
+          created_at?: string
           id?: string
-          user_id?: string
           product_id?: string
           quantity?: number
-          created_at?: string
           updated_at?: string
+          user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
-      orders: {
+      categories: {
         Row: {
-          id: string
-          user_id: string | null
-          status: string
-          total_amount: number
-          shipping_cost: number | null
-          shipping_address: string | null
-          payment_status: string
-          payment_method: string | null
-          invoice_sent: boolean
-          notes: string | null
           created_at: string
+          description: string | null
+          id: string
+          name: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          user_id?: string | null
-          status?: string
-          total_amount: number
-          shipping_cost?: number | null
-          shipping_address?: string | null
-          payment_status?: string
-          payment_method?: string | null
-          invoice_sent?: boolean
-          notes?: string | null
           created_at?: string
+          description?: string | null
+          id?: string
+          name: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          user_id?: string | null
-          status?: string
-          total_amount?: number
-          shipping_cost?: number | null
-          shipping_address?: string | null
-          payment_status?: string
-          payment_method?: string | null
-          invoice_sent?: boolean
-          notes?: string | null
           created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
           updated_at?: string
         }
+        Relationships: []
       }
       order_items: {
         Row: {
+          created_at: string
           id: string
           order_id: string
+          price_per_unit: number
           product_id: string | null
           quantity: number
-          price_per_unit: number
-          created_at: string
         }
         Insert: {
+          created_at?: string
           id?: string
           order_id: string
+          price_per_unit: number
           product_id?: string | null
           quantity: number
-          price_per_unit: number
-          created_at?: string
         }
         Update: {
+          created_at?: string
           id?: string
           order_id?: string
+          price_per_unit?: number
           product_id?: string | null
           quantity?: number
-          price_per_unit?: number
-          created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
       }
-      banking_details: {
+      orders: {
         Row: {
-          id: string
-          bank_name: string
-          account_name: string
-          account_number: string
-          branch_code: string | null
-          swift_code: string | null
-          is_default: boolean
           created_at: string
+          id: string
+          invoice_sent: boolean
+          notes: string | null
+          payment_method: string | null
+          payment_status: string
+          shipping_address: string | null
+          shipping_cost: number | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_sent?: boolean
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          shipping_address?: string | null
+          shipping_cost?: number | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_sent?: boolean
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          shipping_address?: string | null
+          shipping_cost?: number | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          featured: boolean
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          stock: number
           updated_at: string
         }
         Insert: {
-          id?: string
-          bank_name: string
-          account_name: string
-          account_number: string
-          branch_code?: string | null
-          swift_code?: string | null
-          is_default?: boolean
+          category_id?: string | null
           created_at?: string
+          description?: string | null
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          stock?: number
           updated_at?: string
         }
         Update: {
-          id?: string
-          bank_name?: string
-          account_name?: string
-          account_number?: string
-          branch_code?: string | null
-          swift_code?: string | null
-          is_default?: boolean
+          category_id?: string | null
           created_at?: string
+          description?: string | null
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          stock?: number
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
